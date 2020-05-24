@@ -8,6 +8,7 @@ import treatmentEffect as te
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import (RandomForestRegressor,ExtraTreesRegressor, GradientBoostingRegressor)
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import (MultiTaskElasticNetCV, MultiTaskLassoCV)
 import random
 
 dict2Array = lambda dictionary : [dictionary[feature] for feature in dictionary.keys()]
@@ -23,7 +24,7 @@ if __name__=='__main__':
     opt = te.parseModel(model)[0]
     opt['可生化性']['max'] = 100
     X,Y = [],[]
-    for i in range(15):
+    for i in range(20):
         x = ww.wastewater()
         if random.random() > 0.0:
             x.generateFromOpt(opt)
@@ -37,23 +38,43 @@ if __name__=='__main__':
 
     trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
     
-    outputVar = '温度'
-    dependentVars = '温度',# ('温度','COD','pH','TN','重金属','SS（纤维）','SS（絮状）','Cond','可生化性')
+    outputVar = '可生化性'
+    dependentVars ='可生化性',# ('温度','COD','pH','TN','重金属','SS（纤维）','SS（絮状）','Cond','可生化性')
     
     outInd = x.features.index(outputVar)
     inInds = list(map(lambda var: x.features.index(var), dependentVars))
     Y1 = trY[:,outInd]
     X1 = list(zip(*list(map(lambda ind: trX[:,ind], inInds))))
-    #regr = MLPRegressor(hidden_layer_sizes=(10,), max_iter=10000).fit(X1[:-1], Y1[:-1])#random_state=1,  
-    regr = RandomForestRegressor().fit(X1[:-1], Y1[:-1])
-    #regr = KNeighborsRegressor(weights='distance').fit(X1[:-1], Y1[:-1])
-    Y2 = np.clip(regr.predict(X1[:-1]),0,1e10) 
-    [print(X1[:-1][i][0],Y1[:-1][i],Y2[i]) for i in range(len(Y2))]
-    print('errors', np.mean(np.abs(Y2-Y1[:-1]))/np.max((Y1[:-1]))*100, '%')
+#     #regr = MLPRegressor(hidden_layer_sizes=(10,), max_iter=10000).fit(X1[:-1], Y1[:-1])#random_state=1,  
+#     #regr = RandomForestRegressor().fit(X1[:-1], Y1[:-1])
+#     regr = ElasticNetCV().fit(X1[:-5], Y1[:-5])
+#     #regr = KNeighborsRegressor(weights='distance').fit(X1[:-1], Y1[:-1])
+#     Y2 = np.clip(regr.predict(X1[:-5]),0,1e10) 
+#     [print(X1[:-5][i][0],Y1[:-5][i],Y2[i]) for i in range(len(Y2))]
+#     print('errors', np.mean(np.abs(Y2-Y1[:-5]))/np.max((Y1[:-5]))*100, '%')
+# #    #args, ypreds, errors, probs, optBounds = learning(X,Y) #TRAINING GOES HERE
+#     print('\nTESTING')
+#     Y2 = np.clip(regr.predict(X1[-5:]),0,1e10) 
+#     [print(X1[-5:][i][0],Y1[-5:][i],Y2[i]) for i in range(len(Y2))]
+#     print('errors', np.mean(np.abs(Y2-Y1[-5:]))/np.max((Y1[-5:]))*100, '%')
+# #    
+    
+    
+    
+    #regr = MLPRegressor(hidden_layer_sizes=(10,), max_iter=10000).fit(trX[:-5],trY[:-5]) 
+    #regr = RandomForestRegressor().fit(trX[:-5],trY[:-5])
+    regr = MultiTaskLassoCV().fit(trX[:-5], trY[:-5])
+    #regr = KNeighborsRegressor().fit(trX[:-5],trY[:-5]) #weights='distance'
+    Y2 = np.clip(regr.predict(trX[:-5]),0,1e10) 
+    [print(trX[:-5][i][0],trY[:-5][i],Y2[i]) for i in range(len(Y2))]
+    print('errors', np.mean(np.abs(Y2-trY[:-5]))/np.max((trY[:-5]))*100, '%')
 #    #args, ypreds, errors, probs, optBounds = learning(X,Y) #TRAINING GOES HERE
-#    print('\nTESTING')
+    print('\nTESTING')
+    Y2 = np.clip(regr.predict(trX[-5:]),0,1e10) 
+    [print(list(map( lambda arr: list(np.round(arr,2)), [trX[-5:][i],trY[-5:][i],Y2[i]]))) for i in range(len(Y2))]
+    print('errors', np.mean(np.abs(Y2-trY[-5:]))/np.max((trY[-5:]))*100, '%')
 #    
-#    
+    
 #    x = ww.wastewater()
 #    x.generateFromOpt(opt)
 #    #x.simulate(random=True)
