@@ -9,9 +9,10 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestRegressor,ExtraTreesRegressor, GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import MultiTaskElasticNetCV
-from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso
+from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso, LassoCV, LassoLars, BayesianRidge
 from sklearn.preprocessing import StandardScaler
 import random
+import gplearn.genetic as gp
 
 dict2Array = lambda dictionary : [dictionary[feature] for feature in dictionary.keys()]
 array2Dict = lambda array, features: dict(zip(list(features),array))
@@ -19,25 +20,28 @@ array2Dict = lambda array, features: dict(zip(list(features),array))
 #trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
 
 def training(X,Y):
-    trX,trY = map(lambda x: list(map(dict2Array, x)), [X,Y])
+    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
     scaler = StandardScaler(trX)
     scaler.fit(trX)
-    trX = scaler.fit_transform(trX)
-    regr = Lasso(alpha=1, max_iter=1e6).fit(trX, trY)
+    #trX = scaler.fit_transform(trX)
     
-    Ypred = np.clip(regr.predict(trX),0,1e10) 
+    regrs = [gp.SymbolicRegressor(verbose=1).fit(trX, trY[:,i]) for i in range(len(trY[0]))]
+    #regr = BayesianRidge().fit(trX, trY)
+    
+    Ypred = np.array([np.clip(regr.predict(trX),0,1e10)  for regr in regrs]).T
     with np.errstate(divide='ignore', invalid='ignore'):
         e = (np.abs(Ypred-trY)/Ypred)
     e[np.isnan(e)] = 0
     e[np.isinf(e)] = 0
     errorByRows = np.mean(e,axis=1)*100
     errorByCols = np.mean(e,axis=0)*100
-    return Ypred, regr, scaler, errorByRows, errorByCols
+    return Ypred, regrs, scaler, errorByRows, errorByCols
 
-def testing(X,Y, regr, scaler):
-    trX,trY = map(lambda x: list(map(dict2Array, x)), [X,Y])
-    trX = scaler.fit_transform(trX)
-    Ypred = np.clip(regr.predict(trX),0,1e10) 
+def testing(X,Y, regrs, scaler):
+    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
+    #trX = scaler.fit_transform(trX)
+    #Ypred = np.clip(regr.predict(trX),0,1e10) 
+    Ypred = np.array([np.clip(regr.predict(trX),0,1e10)  for regr in regrs]).T
     with np.errstate(divide='ignore', invalid='ignore'):
         e = (np.abs(Ypred-trY)/Ypred)
     e[np.isnan(e)] = 0
