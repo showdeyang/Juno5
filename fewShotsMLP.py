@@ -25,7 +25,7 @@ def training(X,Y):
     scaler.fit(trX)
     #trX = scaler.fit_transform(trX)
     
-    regrs = [gp.SymbolicRegressor(verbose=1).fit(trX, trY[:,i]) for i in range(len(trY[0]))]
+    regrs = [gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=10, generations=20).fit(trX, trY[:,i]) for i in range(len(trY[0]))]
     #regr = BayesianRidge().fit(trX, trY)
     
     Ypred = np.array([np.clip(regr.predict(trX),0,1e10)  for regr in regrs]).T
@@ -58,7 +58,7 @@ if __name__=='__main__':
     opt = te.parseModel(model)[0]
     opt['可生化性']['max'] = 100
     X,Y = [],[]
-    for i in range(10):
+    for i in range(15):
         x = ww.wastewater()
         if random.random() > 0.0:
             x.generateFromOpt(opt)
@@ -66,12 +66,12 @@ if __name__=='__main__':
             x.simulate(random=True)
         X.append(x.water)
         #print('input wastewater',x.water)
-        y = te.treat(x,modelname)['effluent'].water
+        y = te.treat(x,modelname)['optEff'].water
         #print(y['COD'])
         Y.append(y)
     
     
-    Ypred, regr, scaler, ebr, ebc = training(X,Y)
+    Ypred, regrs, scaler, ebr, ebc = training(X,Y)
     
     print("\nTESTING")
     X,Y = [],[]
@@ -83,12 +83,12 @@ if __name__=='__main__':
             x.simulate(random=True)
         X.append(x.water)
         #print('input wastewater',x.water)
-        y = te.treat(x,modelname)['effluent'].water
+        y = te.treat(x,modelname)['optEff'].water
         #print(y['COD'])
         Y.append(y)
     
     
-    Ypred, ebr, ebc = testing(X,Y, regr, scaler)
+    Ypred, ebr, ebc = testing(X,Y, regrs, scaler)
     Y2 = list(map(lambda arr: array2Dict(arr, Y[0].keys()), Ypred))
     print(Y,Y2)
     print('error by rows', ebr)
@@ -98,8 +98,8 @@ if __name__=='__main__':
     for feature in Y[0]:
         print(feature, Y[0][feature], Y2[0][feature])
     
-    
-    
+    for regr in regrs:
+        print(regrs.index(regr),list(Y[0].keys())[regrs.index(regr)],regr._program)
 #    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
 #    
 #    outputVar = '可生化性'

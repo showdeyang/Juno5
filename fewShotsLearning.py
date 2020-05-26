@@ -101,8 +101,8 @@ if __name__=='__main__':
     X,Y = [],[]
     for i in range(10):
         x = ww.wastewater()
-        #x.generateFromOpt(opt)
-        x.simulate(random=True)
+        x.generateFromOpt(opt)
+        #x.simulate(random=True)
         X.append(x.water)
         #print('input wastewater',x.water)
         y = te.treat(x,modelname)['optEff'].water

@@ -87,13 +87,12 @@ class wastewater:
     
     def generateFromOpt(self, optDict):
         self.simulate(random=True)
-        water = self.water
-        for feature in optDict:
-            if water[feature] < optDict[feature]['min']:
-                water[feature] =  optDict[feature]['min']
-            if water[feature] > optDict[feature]['max']:
-                water[feature] =  optDict[feature]['max']
+        #water = self.water
+        
+        water = {feature: np.random.uniform(optDict[feature]['min'], optDict[feature]['max']) for feature in optDict}
         self.water.update(water)
+        #self.simulate(water)
+        self.conform()
         self.water.update(self.wwdict)
         
 
