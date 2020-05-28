@@ -68,13 +68,13 @@ def predict(x, args, probs, optBounds):
     ypreds = list(map(lambda z: evaluate([x], *z), zip(funcs,args)))[0]
     ypred = np.sum(np.multiply(ypreds, probs),axis=0)
     
-    optMin, optMax = map(np.array,map(list,zip(*optBounds.values())))
-    print('optMinMax', optMin, optMax)
-    print('OPTMINMAX X', list(zip(features,optMin, optMax, x)))
-    optimality = 1 + np.clip(np.median((np.array(x) - optMin) * (optMax-np.array(x))/((optMax-optMin)**2 + 1e-3)),-1,0)
-    
-    print('OPTIMALITY',optimality)
-    ypred = np.array(x) + optimality*(ypred - np.array(x))
+#    optMin, optMax = map(np.array,map(list,zip(*optBounds.values())))
+#    print('optMinMax', optMin, optMax)
+#    print('OPTMINMAX X', list(zip(features,optMin, optMax, x)))
+#    optimality = 1 + np.clip(np.median((np.array(x) - optMin) * (optMax-np.array(x))/((optMax-optMin)**2 + 1e-3)),-1,0)
+#    
+#    print('OPTIMALITY',optimality)
+#    ypred = np.array(x) + optimality*(ypred - np.array(x))
     y = array2Dict(ypred, features)
     return ww.wastewater(y)
     
@@ -118,7 +118,7 @@ if __name__=='__main__':
     #x.simulate(random=True)
     ypred = predict(x,args,probs, optBounds)
     
-    y = te.treat(x,'厌氧')['effluent']
+    y = te.treat(x,'厌氧')['optEff']
     print('\nactual y')
     list(map(lambda row: print(row[0][0],round(row[0][1],1),round(row[1][1],1),round(row[2][1],1)), zip(x.water.items(), ypred.water.items(),y.water.items())))
     print('probability distribution')

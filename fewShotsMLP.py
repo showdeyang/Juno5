@@ -9,41 +9,73 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestRegressor,ExtraTreesRegressor, GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import MultiTaskElasticNetCV
-from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso, LassoCV, LassoLars, BayesianRidge
+from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso, LassoCV, LassoLars, BayesianRidge, Ridge
 from sklearn.preprocessing import StandardScaler
 import random
 import gplearn.genetic as gp
-
+from sklearn.preprocessing import PolynomialFeatures
+ 
 dict2Array = lambda dictionary : [dictionary[feature] for feature in dictionary.keys()]
 array2Dict = lambda array, features: dict(zip(list(features),array))
 
 #trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
 
-def training(X,Y):
-    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
+def training(X,Y, depVars):
+    trX,trY = map(lambda x: list(map(dict2Array, x)), [X,Y])
+    features = list(X[0].keys())
     scaler = StandardScaler(trX)
     scaler.fit(trX)
     #trX = scaler.fit_transform(trX)
-    
-    regrs = [gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=10, generations=20).fit(trX, trY[:,i]) for i in range(len(trY[0]))]
-    #regr = BayesianRidge().fit(trX, trY)
-    
-    Ypred = np.array([np.clip(regr.predict(trX),0,1e10)  for regr in regrs]).T
+
+    trX,trY = np.array(trX),np.array(trY)
+    regrs, Ypreds = [], []
+    for outputVar in features:
+        dependentVars = depVars[outputVar]
+        outInd = features.index(outputVar)
+        inInds = list(map(lambda var: features.index(var), dependentVars))
+        X1 = list(map(list,list(zip(*list(map(lambda ind: trX[:,ind], inInds))))))
+        #print(trY[:,outInd])
+        #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
+        regr = BayesianRidge().fit(X1, trY[:,outInd])
+        #regr = BayesianRidge().fit(trX, trY)
+        regrs.append(regr)
+        Ypred = np.clip(regr.predict(X1),0,1e10)
+        Ypreds.append(Ypred)
+    Ypred = np.array(Ypreds).T
+    trY[trY<1e-4] = 0
+    Ypred[Ypred<1e-4] = 0
     with np.errstate(divide='ignore', invalid='ignore'):
-        e = (np.abs(Ypred-trY)/Ypred)
+        e = np.abs(Ypred - trY)/(trY)
     e[np.isnan(e)] = 0
     e[np.isinf(e)] = 0
     errorByRows = np.mean(e,axis=1)*100
     errorByCols = np.mean(e,axis=0)*100
     return Ypred, regrs, scaler, errorByRows, errorByCols
 
-def testing(X,Y, regrs, scaler):
-    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
+def testing(X,Y, depVars, regrs, scaler):
+    trX,trY = map(lambda x: list(map(dict2Array, x)), [X,Y])
+    features = list(X[0].keys())
     #trX = scaler.fit_transform(trX)
+   
+    trX,trY = np.array(trX),np.array(trY)
     #Ypred = np.clip(regr.predict(trX),0,1e10) 
-    Ypred = np.array([np.clip(regr.predict(trX),0,1e10)  for regr in regrs]).T
+    Ypreds = []
+    i = 0
+    for outputVar in features:
+        regr = regrs[i]
+        dependentVars = depVars[outputVar]
+        outInd = features.index(outputVar)
+        inInds = list(map(lambda var: features.index(var), dependentVars))
+        X1 = list(map(list,list(zip(*list(map(lambda ind: trX[:,ind], inInds))))))
+        #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
+        Ypred = np.clip(regr.predict(X1),0,1e10)
+        Ypreds.append(Ypred)
+        i += 1
+    Ypred = np.array(Ypreds).T
+    trY[trY<1e-4] = 0
+    Ypred[Ypred<1e-4] = 0
     with np.errstate(divide='ignore', invalid='ignore'):
-        e = (np.abs(Ypred-trY)/Ypred)
+        e = np.abs(Ypred - trY)/(trY)
     e[np.isnan(e)] = 0
     e[np.isinf(e)] = 0
     errorByRows = np.mean(e,axis=1)*100
@@ -58,7 +90,7 @@ if __name__=='__main__':
     opt = te.parseModel(model)[0]
     opt['可生化性']['max'] = 100
     X,Y = [],[]
-    for i in range(15):
+    for i in range(5):
         x = ww.wastewater()
         if random.random() > 0.0:
             x.generateFromOpt(opt)
@@ -70,8 +102,14 @@ if __name__=='__main__':
         #print(y['COD'])
         Y.append(y)
     
+    depVars = {feature: [feature] for feature in x.features}
+    depVars['TN'] += ['COD']
+    depVars['N-NH3'] += ['COD','TN']
+    depVars['N-NO3'] += ['COD','TN']
+    #depVars['TP'] += ['COD']
     
-    Ypred, regrs, scaler, ebr, ebc = training(X,Y)
+    
+    Ypred, regrs, scaler, ebr, ebc = training(X,Y, depVars)
     
     print("\nTESTING")
     X,Y = [],[]
@@ -88,18 +126,18 @@ if __name__=='__main__':
         Y.append(y)
     
     
-    Ypred, ebr, ebc = testing(X,Y, regrs, scaler)
+    Ypred, ebr, ebc = testing(X,Y, depVars, regrs, scaler)
     Y2 = list(map(lambda arr: array2Dict(arr, Y[0].keys()), Ypred))
     print(Y,Y2)
     print('error by rows', ebr)
     print('error by cols', ebc)
-    print('error', np.mean(ebr), '%')
-    print(ebr[0])
+    print('mean error', np.mean(ebr), '%')
+    print('this sample error', ebr[0], '%')
     for feature in Y[0]:
         print(feature, Y[0][feature], Y2[0][feature])
     
-    for regr in regrs:
-        print(regrs.index(regr),list(Y[0].keys())[regrs.index(regr)],regr._program)
+#    for regr in regrs:
+#        print(regrs.index(regr),list(Y[0].keys())[regrs.index(regr)],regr._program)
 #    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
 #    
 #    outputVar = '可生化性'
