@@ -5,15 +5,17 @@ import matplotlib.pyplot as plt
 import time
 import wastewater as ww
 import treatmentEffect as te
+from sklearn.linear_model import BayesianRidge
+import joblib
 from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import RandomForestRegressor,ExtraTreesRegressor, GradientBoostingRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import MultiTaskElasticNetCV
-from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso, LassoCV, LassoLars, BayesianRidge, Ridge
+#from sklearn.ensemble import RandomForestRegressor,ExtraTreesRegressor, GradientBoostingRegressor
+#from sklearn.neighbors import KNeighborsRegressor
+#from sklearn.linear_model import MultiTaskElasticNetCV
+#from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso, LassoCV, LassoLars, BayesianRidge, Ridge
 from sklearn.preprocessing import StandardScaler
 import random
 import gplearn.genetic as gp
-from sklearn.preprocessing import PolynomialFeatures
+#from sklearn.preprocessing import PolynomialFeatures
  
 dict2Array = lambda dictionary : [dictionary[feature] for feature in dictionary.keys()]
 array2Dict = lambda array, features: dict(zip(list(features),array))
@@ -23,25 +25,14 @@ array2Dict = lambda array, features: dict(zip(list(features),array))
 def training(X,Y, depVars):
     trX,trY = map(lambda x: list(map(dict2Array, x)), [X,Y])
     features = list(X[0].keys())
-    scaler = StandardScaler(trX)
-    scaler.fit(trX)
-    #trX = scaler.fit_transform(trX)
-
+    scaler1, scaler2 = StandardScaler(trX),  StandardScaler(trY)
+    trX = scaler1.fit_transform(trX)
+    #trY = scaler2.fit_transform(trY)
     trX,trY = np.array(trX),np.array(trY)
-    regrs, Ypreds = [], []
-    for outputVar in features:
-        dependentVars = depVars[outputVar]
-        outInd = features.index(outputVar)
-        inInds = list(map(lambda var: features.index(var), dependentVars))
-        X1 = list(map(list,list(zip(*list(map(lambda ind: trX[:,ind], inInds))))))
-        #print(trY[:,outInd])
-        #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
-        regr = BayesianRidge().fit(X1, trY[:,outInd])
-        #regr = BayesianRidge().fit(trX, trY)
-        regrs.append(regr)
-        Ypred = np.clip(regr.predict(X1),0,1e10)
-        Ypreds.append(Ypred)
-    Ypred = np.array(Ypreds).T
+    
+    regr = MLPRegressor(hidden_layer_sizes=(30,30), max_iter=int(1e10), activation='relu', solver='adam', alpha=10 , learning_rate='adaptive').fit(trX,trY)
+    Ypred = np.clip(regr.predict(trX),0,1e10)
+    #print(Ypred)
     trY[trY<1e-4] = 0
     Ypred[Ypred<1e-4] = 0
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -50,28 +41,19 @@ def training(X,Y, depVars):
     e[np.isinf(e)] = 0
     errorByRows = np.mean(e,axis=1)*100
     errorByCols = np.mean(e,axis=0)*100
-    return Ypred, regrs, scaler, errorByRows, errorByCols
+    print('Error by Rows', np.round(errorByRows, 2).tolist())
+    print("Error by Cols", np.round(errorByCols,2).tolist())
+    print("error", np.mean(errorByRows))
+    return Ypred, regr, scaler1, scaler2, errorByRows, errorByCols
 
-def testing(X,Y, depVars, regrs, scaler):
+def testing(X,Y, depVars, regr, scaler1, scaler2):
     trX,trY = map(lambda x: list(map(dict2Array, x)), [X,Y])
     features = list(X[0].keys())
-    #trX = scaler.fit_transform(trX)
-   
+    trX = scaler1.fit_transform(trX)
+    
     trX,trY = np.array(trX),np.array(trY)
-    #Ypred = np.clip(regr.predict(trX),0,1e10) 
-    Ypreds = []
-    i = 0
-    for outputVar in features:
-        regr = regrs[i]
-        dependentVars = depVars[outputVar]
-        outInd = features.index(outputVar)
-        inInds = list(map(lambda var: features.index(var), dependentVars))
-        X1 = list(map(list,list(zip(*list(map(lambda ind: trX[:,ind], inInds))))))
-        #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
-        Ypred = np.clip(regr.predict(X1),0,1e10)
-        Ypreds.append(Ypred)
-        i += 1
-    Ypred = np.array(Ypreds).T
+    Ypred = np.clip(regr.predict(trX),0,1e10) 
+    #Ypred = scaler2.inverse_transform(Ypred)
     trY[trY<1e-4] = 0
     Ypred[Ypred<1e-4] = 0
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -83,14 +65,14 @@ def testing(X,Y, depVars, regrs, scaler):
     return Ypred, errorByRows, errorByCols
 
 if __name__=='__main__':
-    t1 = time.time()
+    
     print('TRAINING')
     modelname = '厌氧'
     model = te.loadModel(modelname)
     opt = te.parseModel(model)[0]
     opt['可生化性']['max'] = 100
     X,Y = [],[]
-    for i in range(5):
+    for i in range(10):
         x = ww.wastewater()
         if random.random() > 0.0:
             x.generateFromOpt(opt)
@@ -109,11 +91,12 @@ if __name__=='__main__':
     #depVars['TP'] += ['COD']
     
     
-    Ypred, regrs, scaler, ebr, ebc = training(X,Y, depVars)
+    Ypred, regrs, scaler1, scaler2, ebr, ebc = training(X,Y, depVars)
+    
     
     print("\nTESTING")
     X,Y = [],[]
-    for i in range(5):
+    for i in range(10):
         x = ww.wastewater()
         if random.random() > 0.0:
             x.generateFromOpt(opt)
@@ -125,10 +108,12 @@ if __name__=='__main__':
         #print(y['COD'])
         Y.append(y)
     
-    
-    Ypred, ebr, ebc = testing(X,Y, depVars, regrs, scaler)
+    t1 = time.time()
+    Ypred, ebr, ebc = testing(X,Y, depVars, regrs,scaler1,scaler2)
+    t2 = time.time()
+    print('time taken for training and testing in real time', t2-t1,'ms')
     Y2 = list(map(lambda arr: array2Dict(arr, Y[0].keys()), Ypred))
-    print(Y,Y2)
+    #print(Y,Y2)
     print('error by rows', ebr)
     print('error by cols', ebc)
     print('mean error', np.mean(ebr), '%')
@@ -189,5 +174,4 @@ if __name__=='__main__':
 ##    print(np.array(probs).T)
 ##    print('args')
 ##    print(np.array(args).T)
-    t2 = time.time()
-    print('time taken for training and testing in real time', t2-t1,'ms')
+

@@ -86,13 +86,16 @@ class wastewater:
             return normalState, msg
     
     def generateFromOpt(self, optDict):
-        self.simulate(random=True)
-        #water = self.water
-        
-        water = {feature: np.random.uniform(optDict[feature]['min'], optDict[feature]['max']) for feature in optDict}
-        self.water.update(water)
-        #self.simulate(water)
-        self.conform()
+        optState = False
+        while not optState:
+            self.simulate(random=True)
+            water = {feature: np.random.uniform(optDict[feature]['min'], optDict[feature]['max']) for feature in optDict}
+            self.water.update(water)
+            #self.simulate(water)
+            optState, msg = self.conform(test=True)
+            #print(msg)
+            #print(optState)
+            
         self.water.update(self.wwdict)
         
 
