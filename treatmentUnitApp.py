@@ -2,14 +2,15 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from pathlib import Path
-import win32api
+#import win32api
 import sys, os
 import json
-from tksheet import Sheet
-
+from functools import partial
+#from tksheet import Sheet
+from tkintertable import TableCanvas, TableModel
 path = Path('./')
 APP_TITLE = '工艺建模'
-APP_ICON = str(path / 'assets' / 'logo.ico')
+APP_ICON = (path / 'assets' / 'juneng.png').absolute()
 
 def alwaysActiveStyle(widget):
     widget.config(state="active")
@@ -75,26 +76,92 @@ class Window(ttk.Frame):
         ###################################################################
         #Body Layout
         self.box = tk.Frame(self.body)
-        self.box.pack(side='top')
+        self.box.pack(side='top', fill='x', expand=True)
         
-        self.about = tk.Label(self.box,text='Juno AI 污水处理工艺建模', justify='left')
-        self.about.pack(side='top')
+        row1 = tk.Frame(self.body)
+        row1.pack(side='top', fill='x', expand=True)
+        self.about = tk.Label(row1,text='Juno AI 污水处理工艺建模', justify='left', font=('Lucida Grande', 15))
+        self.about.pack(side='left')
         
-        self.modelTitle = tk.Label(self.box,text=self.modelName, justify='left')
-        self.modelTitle.pack(side='top')
+        row2 = tk.Frame(self.body)
+        row2.pack(side='top', fill='x', expand=True)
+        self.modelTitle = tk.Label(row2,text=self.modelName, font=('Lucida Grande', 20))
+        self.modelTitle.pack(side='left')
         
-        self.Button = ttk.Button(self.box,text='分析数据')
-        self.Button.pack(side='bottom')
+        ############################################################
+        #Optimality Widget
+        self.optFrame = tk.Frame(self.body)
+        self.optFrame.pack(side='left', expand=False, fill='both')
         
+        self.optFrameLabel = tk.Label(self.optFrame, text='最优运行条件配置', font=('Lucida Grande', 13))
+        self.optFrameLabel.pack(side='top')
         
+        self.optTable = tk.Frame(self.optFrame)
+        self.optTable.pack(side='top')
         
-        self.sheet = Sheet(self.box, data = [[1,2,3,4,5], [1,2,3]], headers = self.treatments,row_index = self.features, theme='light',set_all_heights_and_widths = True, total_rows = 7, header_height = "3", total_columns=9, height=500, width=1500)
-        self.sheet.set_all_cell_sizes_to_text()
-        self.sheet.enable_bindings("enable_all")
-        self.sheet.pack(side='bottom')
-        self.sheet.extra_bindings([("cell_select", self.cell_select)])
+        optEntries = []
+        depVarBtns = []
+        headers = ['污水特征','最低值*','最高值*','依赖特征']
+        width = 20
+        for i in range(len(self.features)+1):
+            if i == 0:
+                row = tk.Frame(self.optTable)
+                row.pack(side='top', fill='x', expand=True)
+                #this is the headers row
+                for header in headers:
+                    if header != headers[-1]:
+                        label = tk.Label(row, text=header, width=width, fg='white', bg='seagreen')
+                        label.pack(side='left')
+                    else:
+                        frame = tk.Frame(row, bg='cornflowerblue')
+                        frame.pack(side='left', expand=True, fill='x')
+                        label = tk.Label(frame, text=header, width=width, fg='white', bg='cornflowerblue')
+                        label.pack()
+            else:
+                row = tk.Frame(self.optTable)
+                row.pack(side='top')
+                
+                label = tk.Label(row, text=self.features[i-1], width=width)
+                label.pack(side='left')
+                
+                optRow = []
+                btns = []
+                for j in range(2):
+                    e = tk.Entry(row, width=width)
+                    e.pack(side='left')
+                    optRow.append(e)
+                
+                for feature in self.features:
+                        btn = tk.Button(row, text=feature, font=('Lucida Grande', 7), relief='flat', bg='white', fg='dark grey')
+
+                        btn.configure(command=partial(self.selectBtn, btn))
+                        btn.pack(side='left')
+                        btn.clicked = False
+                        if self.features.index(feature)+1 == i:
+                            btn.configure(bg='tomato', fg='white')
+                            btn.clicked = True
+                        btns.append(btn)
+                    
+                optEntries.append(optRow)
+                depVarBtns.append(btns)
+#        How to insert data
+#        optEntries[5][0].insert(tk.END,'Booty芝芝')
+#        optEntries[3][1].insert(tk.END,'月音瞳')
         
-        
+        captionFrame = tk.Frame(self.optFrame)
+        captionFrame.pack(side='top', fill='x')
+        caption = tk.Label(self.optFrame, text='\n注：*必填', font=('Lucida Grande', 9))
+        caption.pack(side='left')
+    
+
+    def selectBtn(self, btn):
+        if not btn.clicked:
+            btn.configure(bg='tomato', fg='white')
+            btn.clicked = True
+        else:
+            btn.configure(bg='white', fg='dark grey')
+            btn.clicked = False
+
         
     def createNewModel(self):
         return
@@ -125,18 +192,20 @@ class Window(ttk.Frame):
     
 if __name__ == "__main__":
     root = tk.Tk()
-    root.iconbitmap(APP_ICON)
-    #s = ttk.Style(root)
-    #s.theme_use('clam')
+    #root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file=APP_ICON))
+#    s = ttk.Style(root)
+#    s.theme_use('clam')
     #s.configure('raised.TMenubutton', borderwidth=1, state='disabled')
 
     #s=ttk.Style()
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
     app = Window(root)
-    root.wm_state("zoomed")
+    #root.wm_state("zoomed")
+    root.wm_attributes('-zoomed',1)
+    root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('900x350')
+    root.geometry('900x850')
     #show window
     root.mainloop()
