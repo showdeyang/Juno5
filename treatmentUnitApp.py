@@ -11,6 +11,7 @@ from tkintertable import TableCanvas, TableModel
 path = Path('./')
 APP_TITLE = '工艺建模'
 APP_ICON = (path / 'assets' / 'juneng.png').absolute()
+font = '微软雅黑'
 
 def alwaysActiveStyle(widget):
     widget.config(state="active")
@@ -80,23 +81,23 @@ class Window(ttk.Frame):
         
         row1 = tk.Frame(self.body)
         row1.pack(side='top', fill='x', expand=True)
-        self.about = tk.Label(row1,text='Juno AI 污水处理工艺建模', justify='left', font=('Lucida Grande', 15))
+        self.about = tk.Label(row1,text='Juno AI 污水处理工艺建模', justify='left', font=(font, 15))
         self.about.pack(side='left')
         
         row2 = tk.Frame(self.body)
         row2.pack(side='top', fill='x', expand=True)
-        self.modelTitle = tk.Label(row2,text=self.modelName, font=('Lucida Grande', 20))
+        self.modelTitle = tk.Label(row2,text=self.modelName, font=(font, 20))
         self.modelTitle.pack(side='left')
         
         ############################################################
         #Optimality Widget
         self.optFrame = tk.Frame(self.body)
-        self.optFrame.pack(side='left', expand=False, fill='both')
+        self.optFrame.pack(side='top', expand=False, fill='both')
         
-        self.optFrameLabel = tk.Label(self.optFrame, text='最优运行条件配置', font=('Lucida Grande', 13))
+        self.optFrameLabel = ttk.Label(self.optFrame, text='最优运行条件配置', font=(font, 13))
         self.optFrameLabel.pack(side='top')
         
-        self.optTable = tk.Frame(self.optFrame)
+        self.optTable = ttk.Frame(self.optFrame)
         self.optTable.pack(side='top')
         
         optEntries = []
@@ -118,21 +119,21 @@ class Window(ttk.Frame):
                         label = tk.Label(frame, text=header, width=width, fg='white', bg='cornflowerblue')
                         label.pack()
             else:
-                row = tk.Frame(self.optTable)
+                row = tk.Frame(self.optTable, bd=1)
                 row.pack(side='top')
                 
-                label = tk.Label(row, text=self.features[i-1], width=width)
+                label = ttk.Label(row, text=self.features[i-1], width=width)
                 label.pack(side='left')
                 
                 optRow = []
                 btns = []
                 for j in range(2):
-                    e = tk.Entry(row, width=width)
+                    e = ttk.Entry(row, width=width)
                     e.pack(side='left')
                     optRow.append(e)
                 
                 for feature in self.features:
-                        btn = tk.Button(row, text=feature, font=('Lucida Grande', 7), relief='flat', bg='white', fg='dark grey')
+                        btn = tk.Button(row, text=feature, font=(font, 7), relief='flat', bg='white', fg='dark grey', width=10)
 
                         btn.configure(command=partial(self.selectBtn, btn))
                         btn.pack(side='left')
@@ -150,7 +151,7 @@ class Window(ttk.Frame):
         
         captionFrame = tk.Frame(self.optFrame)
         captionFrame.pack(side='top', fill='x')
-        caption = tk.Label(self.optFrame, text='\n注：*必填', font=('Lucida Grande', 9))
+        caption = tk.Label(self.optTable, text='\n注：*必填', font=(font, 9))
         caption.pack(side='left')
     
 
@@ -201,8 +202,8 @@ if __name__ == "__main__":
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
     app = Window(root)
-    #root.wm_state("zoomed")
-    root.wm_attributes('-zoomed',1)
+    root.wm_state("zoomed")
+    #root.wm_attributes('-zoomed',1)
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
