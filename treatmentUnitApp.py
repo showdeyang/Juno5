@@ -2,8 +2,12 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from pathlib import Path
+from PIL import ImageTk, Image
 #import win32api
+import glob
+import platform
 import sys, os
+import random
 import json
 from functools import partial
 #from tksheet import Sheet
@@ -11,7 +15,10 @@ from tkintertable import TableCanvas, TableModel
 path = Path('./')
 APP_TITLE = '工艺建模'
 APP_ICON = (path / 'assets' / 'juneng.png').absolute()
-font = '微软雅黑'
+if platform.system() == 'Windows':
+    font = '微软雅黑'
+else:
+    font = 'Lucida Grande'
 
 def alwaysActiveStyle(widget):
     widget.config(state="active")
@@ -24,10 +31,31 @@ class Window(ttk.Frame):
         #####################################
         #Main Layout
         self.master = master
-        self.topBar = tk.Frame(self.master, relief='raised', bd=1)
+        
+        self.notebook = ttk.Notebook(self.master)
+        self.notebook.pack()
+        
+        
+        self.configWidget = tk.Frame(self.master)
+        self.configWidget.pack(side='top')
+        self.notebook.add(self.configWidget, text='定义与配置')
+        
+        self.trainingWidget = tk.Frame(self.master)
+        self.trainingWidget.pack(side='top')
+        self.notebook.add(self.trainingWidget, text='数据建模')
+        
+        self.applicationWidget = tk.Frame(self.master)
+        self.applicationWidget.pack(side='top')
+        self.notebook.add(self.applicationWidget, text='进出水预测（应用）')
+        
+        self.dataWidget = tk.Frame(self.master)
+        self.dataWidget.pack(side='top')
+        self.notebook.add(self.dataWidget, text='历史数据')
+        
+        self.topBar = tk.Frame(self.configWidget, relief='flat', bd=1)
         self.topBar.pack(side='top', fill='x')
         
-        self.body = tk.Frame(self.master)
+        self.body = tk.Frame(self.configWidget)
         self.body.pack(side='top', fill='both')
         
         self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
@@ -122,18 +150,18 @@ class Window(ttk.Frame):
                 row = tk.Frame(self.optTable, bd=1)
                 row.pack(side='top')
                 
-                label = ttk.Label(row, text=self.features[i-1], width=width)
+                label = tk.Label(row, text=self.features[i-1], width=width)
                 label.pack(side='left')
                 
                 optRow = []
                 btns = []
                 for j in range(2):
-                    e = ttk.Entry(row, width=width)
+                    e = tk.Entry(row, width=width, relief='groove', bg='#fefefe',bd=1, justify='right')
                     e.pack(side='left')
                     optRow.append(e)
                 
                 for feature in self.features:
-                        btn = tk.Button(row, text=feature, font=(font, 7), relief='flat', bg='white', fg='dark grey', width=10)
+                        btn = tk.Button(row, text=feature, font=(font, 7), relief='flat', bg='white', fg='dark grey', width=10, bd=1, cursor='hand2')
 
                         btn.configure(command=partial(self.selectBtn, btn))
                         btn.pack(side='left')
@@ -153,8 +181,67 @@ class Window(ttk.Frame):
         captionFrame.pack(side='top', fill='x')
         caption = tk.Label(self.optTable, text='\n注：*必填', font=(font, 9))
         caption.pack(side='left')
-    
+        
 
+        ##################################
+        #add buttons here for optimality Frame
+        #######################################################################
+        #training widget
+        self.trainingTitle = tk.Label(self.trainingWidget, text='训练数据')
+        self.trainingTitle.pack(side='top')
+        #training table, input and output
+        #graph
+        #buttons
+        
+        #################################################
+        #application
+        self.applicationTitle = tk.Label(self.applicationWidget, text='实际应用')
+        self.applicationTitle.pack(side='top')
+        #input output table
+        #buttons
+        
+        ###############################################
+        #data widget
+        self.dataTitle = tk.Label(self.dataWidget, text='历史数据 在此游览')
+        self.dataTitle.pack(side='top')
+        #show data table
+        #buttons
+        
+        #福利
+        maxwidth = 1000
+        maxheight = 1000
+        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
+        button.pack(side='top')
+        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pic = random.choice(pics)
+        imgpath = pic
+        img = Image.open(imgpath)
+        ratio = min(maxwidth/img.size[0], maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        
+        self.canvas = tk.Canvas(self.dataWidget, height=1000, width=1000) 
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
+        self.canvas.pack(expand=True) 
+        
+    def changePic(self):
+        maxwidth = 1000
+        maxheight = 1000
+        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
+        button.pack(side='top')
+        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pic = random.choice(pics)
+        imgpath = pic
+        img = Image.open(imgpath)
+        ratio = min(maxwidth/img.size[0], maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
+        
     def selectBtn(self, btn):
         if not btn.clicked:
             btn.configure(bg='tomato', fg='white')
@@ -190,6 +277,9 @@ class Window(ttk.Frame):
     def cell_select(self, response):
         print (self.sheet.get_selected_cells())
         print (self.sheet.get_cell_data(*list(self.sheet.get_selected_cells())[0]))
+        
+        
+
     
 if __name__ == "__main__":
     root = tk.Tk()
@@ -201,9 +291,15 @@ if __name__ == "__main__":
     #s=ttk.Style()
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
+    s = ttk.Style()
+    s.configure('TNotebook.Tab', width=20, padding=(5, 5))
+    s.configure('TNotebook', tabmargins = (2, 10, 0, 0))
+
     app = Window(root)
-    root.wm_state("zoomed")
-    #root.wm_attributes('-zoomed',1)
+    if platform.system() == 'Windows':
+        root.wm_state("zoomed")
+    else:
+        root.wm_attributes('-zoomed',1)
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
