@@ -1,67 +1,87 @@
-import wx
-import win32api
-import sys, os
+# -*- coding: utf-8 -*-
 
-APP_TITLE = u'动态布局'
-APP_ICON = 'res/python.ico'
+# Form implementation generated from reading ui file 'untitled.ui'
+#
+# Created by: PyQt5 UI code generator 5.12
+#
+# WARNING! All changes made in this file will be lost!
 
-class mainFrame(wx.Frame):
-    '''程序主窗口类，继承自wx.Frame'''
-    
-    def __init__(self, parent):
-        '''构造函数'''
-        
-        wx.Frame.__init__(self, parent, -1, APP_TITLE)
-        self.SetBackgroundColour(wx.Colour(240, 240, 240))
-        self.SetSize((800, 600))
-        self.Center()
-        
-        # if hasattr(sys, "frozen") and getattr(sys, "frozen") == "windows_exe":
-        #     exeName = win32api.GetModuleFileName(win32api.GetModuleHandle(None))
-        #     icon = wx.Icon(exeName, wx.BITMAP_TYPE_ICO)
-        # else :
-        #     icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
-        # self.SetIcon(icon)
-        
-        preview = wx.Panel(self, -1, style=wx.SUNKEN_BORDER)
-        preview.SetBackgroundColour(wx.Colour(0, 0, 0))
-        btn_capture = wx.Button(self, -1, u'拍照', size=(100, -1))
-        btn_up = wx.Button(self, -1, u'↑', size=(30, 30))
-        btn_down = wx.Button(self, -1, u'↓', size=(30, 30))
-        btn_left = wx.Button(self, -1, u'←', size=(30, 30))
-        btn_right = wx.Button(self, -1, u'→', size=(30, 30))
-        tc = wx.TextCtrl(self, -1, '', style=wx.TE_MULTILINE)
-        
-        sizer_arrow_mid = wx.BoxSizer()
-        sizer_arrow_mid.Add(btn_left, 0, wx.RIGHT, 16)
-        sizer_arrow_mid.Add(btn_right, 0, wx.LEFT, 16)
-        
-        #sizer_arrow = wx.BoxSizer(wx.VERTICAL)
-        sizer_arrow = wx.StaticBoxSizer(wx.StaticBox(self, -1, u'方向键'), wx.VERTICAL)
-        sizer_arrow.Add(btn_up, 0, wx.ALIGN_CENTER|wx.ALL, 0)
-        sizer_arrow.Add(sizer_arrow_mid, 0, wx.TOP|wx.BOTTOM, 1)
-        sizer_arrow.Add(btn_down, 0, wx.ALIGN_CENTER|wx.ALL, 0)
-        
-        sizer_right = wx.BoxSizer(wx.VERTICAL)
-        sizer_right.Add(btn_capture, 0, wx.ALL, 20)
-        sizer_right.Add(sizer_arrow, 0, wx.ALIGN_CENTER|wx.ALL, 0)
-        sizer_right.Add(tc, 1, wx.ALL, 10)
-        
-        sizer_max = wx.BoxSizer()
-        sizer_max.Add(preview, 1, wx.EXPAND|wx.LEFT|wx.TOP|wx.BOTTOM, 5)
-        sizer_max.Add(sizer_right, 0, wx.EXPAND|wx.ALL, 0)
-        
-        self.SetAutoLayout(True)
-        self.SetSizer(sizer_max)
-        self.Layout()
-        
-class mainApp(wx.App):
-    def OnInit(self):
-        self.SetAppName(APP_TITLE)
-        self.Frame = mainFrame(None)
-        self.Frame.Show()
-        return True
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-if __name__ == "__main__":
-    app = mainApp()
-    app.MainLoop()
+
+class Ui_Juno(object):
+    def setupUi(self, Juno):
+        Juno.setObjectName("Juno")
+        Juno.resize(800, 600)
+        self.centralwidget = QtWidgets.QWidget(Juno)
+        self.centralwidget.setObjectName("centralwidget")
+        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setGeometry(QtCore.QRect(66, 50, 481, 451))
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.label_2 = QtWidgets.QLabel(self.tab)
+        self.label_2.setGeometry(QtCore.QRect(70, 80, 281, 311))
+        self.label_2.setText("")
+        self.label_2.setPixmap(QtGui.QPixmap("assets/res/mmexport1586532194360.webp"))
+        self.label_2.setScaledContents(True)
+        self.label_2.setObjectName("label_2")
+        self.label = QtWidgets.QLabel(self.tab)
+        self.label.setGeometry(QtCore.QRect(100, 30, 271, 20))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(12)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.scrollArea = QtWidgets.QScrollArea(self.tab_2)
+        self.scrollArea.setGeometry(QtCore.QRect(60, 50, 341, 331))
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 339, 329))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.tabWidget.addTab(self.tab_2, "")
+        Juno.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Juno)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 23))
+        self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
+        self.menuEdit = QtWidgets.QMenu(self.menubar)
+        self.menuEdit.setObjectName("menuEdit")
+        self.menuHelp = QtWidgets.QMenu(self.menubar)
+        self.menuHelp.setObjectName("menuHelp")
+        Juno.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Juno)
+        self.statusbar.setObjectName("statusbar")
+        Juno.setStatusBar(self.statusbar)
+        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
+
+        self.retranslateUi(Juno)
+        self.tabWidget.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(Juno)
+
+    def retranslateUi(self, Juno):
+        _translate = QtCore.QCoreApplication.translate
+        Juno.setWindowTitle(_translate("Juno", "MainWindow"))
+        self.label.setText(_translate("Juno", "Welcome!"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Juno", "Tab 1"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Juno", "Tab 2"))
+        self.menuFile.setTitle(_translate("Juno", "File"))
+        self.menuEdit.setTitle(_translate("Juno", "Edit"))
+        self.menuHelp.setTitle(_translate("Juno", "Help"))
+
+if __name__ == '__main__':
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    window = QtWidgets.QMainWindow()
+    MainWindow = Ui_Juno()
+    MainWindow.setupUi(window)
+    window.show()
+    sys.exit(app.exec_())
