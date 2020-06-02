@@ -37,7 +37,7 @@ class Window(ttk.Frame):
         self.treatments = json.loads(open(path / 'config'/ 'treatments.json','r').read())
         
         self.header = tk.Frame(self.master)
-        self.header.pack(side='top',expand=True, fill='x')
+        self.header.pack(side='top', fill='x')
         
         self.row1 = tk.Frame(self.header)
         self.row1.pack(side='top', fill='x', expand=True)
@@ -69,7 +69,7 @@ class Window(ttk.Frame):
 #        self.modelTitle.pack(side='left')
         
         self.notebook = ttk.Notebook(self.master, cursor='hand2')
-        self.notebook.pack(side='top',expand=True, fill='both')
+        self.notebook.pack(side='top',fill='both')
         
         self.configWidget = tk.Frame(self.master)
         self.configWidget.pack(side='top')
@@ -183,9 +183,9 @@ class Window(ttk.Frame):
 #        optEntries[3][1].insert(tk.END,'月音瞳')
         
         captionFrame = tk.Frame(self.optFrame)
-        captionFrame.pack(side='top', fill='x')
-        caption = tk.Label(self.optTable, text='\n注：*必填', font=(font, 9))
-        caption.pack(side='left')
+        captionFrame.pack(side='top', fill='x', expand=True)
+        caption = tk.Label(captionFrame, text='\n注：*必填', font=(font, 9))
+        caption.pack(side='left', fil='x')
         
 
         ##################################
@@ -212,47 +212,47 @@ class Window(ttk.Frame):
         #show data table
         #buttons
         
-        #福利
-        self.maxwidth = 1600
-        self.maxheight = 790
-        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
-        #self.dataWidget.focus_set()
-        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
-        button.pack(side='top')
-        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-        pic = random.choice(pics)
-        imgpath = pic
-        img = Image.open(imgpath)
-        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-        #wpercent = (basewidth/float(img.size[0]))
-        #hsize = int((float(img.size[1])*float(wpercent)))
-        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-        
-        self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
-        self.img = ImageTk.PhotoImage(img)  
-        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
-        self.canvas.pack(expand=True) 
-        self.canvas.bind('<Button-1>',self.changePicByKey)
-    
-    def changePicByKey(self, event):
-        self.changePic()
-        #print('triggered')
-    
-    def changePic(self):
-#        maxwidth = 700
-#        maxheight = 700
-
-        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-        pic = random.choice(pics)
-        imgpath = pic
-        img = Image.open(imgpath)
-        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-        #wpercent = (basewidth/float(img.size[0]))
-        #hsize = int((float(img.size[1])*float(wpercent)))
-        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-        self.img = ImageTk.PhotoImage(img)  
-        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-        #self.dataWidget.focus_set()
+#        #福利
+#        self.maxwidth = 1600
+#        self.maxheight = 790
+#        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
+#        #self.dataWidget.focus_set()
+#        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
+#        button.pack(side='top')
+#        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+#        pic = random.choice(pics)
+#        imgpath = pic
+#        img = Image.open(imgpath)
+#        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+#        #wpercent = (basewidth/float(img.size[0]))
+#        #hsize = int((float(img.size[1])*float(wpercent)))
+#        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+#        
+#        self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
+#        self.img = ImageTk.PhotoImage(img)  
+#        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
+#        self.canvas.pack(expand=True) 
+#        self.canvas.bind('<Button-1>',self.changePicByKey)
+#    
+#    def changePicByKey(self, event):
+#        self.changePic()
+#        #print('triggered')
+#    
+#    def changePic(self):
+##        maxwidth = 700
+##        maxheight = 700
+#
+#        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+#        pic = random.choice(pics)
+#        imgpath = pic
+#        img = Image.open(imgpath)
+#        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+#        #wpercent = (basewidth/float(img.size[0]))
+#        #hsize = int((float(img.size[1])*float(wpercent)))
+#        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+#        self.img = ImageTk.PhotoImage(img)  
+#        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
+#        #self.dataWidget.focus_set()
     def selectBtn(self, btn):
         if not btn.clicked:
             btn.configure(bg='tomato', fg='white')
@@ -301,8 +301,8 @@ class Window(ttk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     #root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file=APP_ICON))
-#    s = ttk.Style(root)
-#    s.theme_use('clam')
+    #s = ttk.Style(root)
+    #s.theme_use('clam')
     #s.configure('raised.TMenubutton', borderwidth=1, state='disabled')
 
     #s=ttk.Style()
