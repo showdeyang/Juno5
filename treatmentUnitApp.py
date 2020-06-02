@@ -32,9 +32,44 @@ class Window(ttk.Frame):
         #Main Layout
         self.master = master
         
-        self.notebook = ttk.Notebook(self.master)
-        self.notebook.pack()
+        self.modelName = None
+        self.features = json.loads(open(path / 'config'/'features.json','r').read())
+        self.treatments = json.loads(open(path / 'config'/ 'treatments.json','r').read())
         
+        self.header = tk.Frame(self.master)
+        self.header.pack(side='top',expand=True, fill='x')
+        
+        self.row1 = tk.Frame(self.header)
+        self.row1.pack(side='top', fill='x', expand=True)
+  
+        self.row2 = tk.Frame(self.header)
+        self.row2.pack(side='top', fill='x', expand=True)
+        
+        self.about = tk.Label(self.row1,text='Juno AI 污水处理工艺建模', justify='left', font=(font, 15))
+        self.about.pack(side='left')
+        
+        self.topBar = tk.Frame(self.row2, relief='flat', bd=1)
+        self.topBar.pack(side='left', expand=True, fill='x')
+        
+        self.cb = tk.Frame(self.row2)
+        self.cb.pack(side='right',fill='both', expand=True)
+        
+        self.combokey = tk.Label(self.cb, text='当前工艺：')
+        self.combokey.pack(side='left')
+        
+        self.combo = ttk.Combobox(self.cb, values=['请选择模型'] + self.treatments)
+        self.combo.pack(side='left')
+        self.combo.current(0)
+        self.combo.bind("<<ComboboxSelected>>", self.loadModel)
+        
+
+#        
+#
+#        self.modelTitle = tk.Label(row2,text=self.modelName, font=(font, 20))
+#        self.modelTitle.pack(side='left')
+        
+        self.notebook = ttk.Notebook(self.master, cursor='hand2')
+        self.notebook.pack(side='top',expand=True, fill='both')
         
         self.configWidget = tk.Frame(self.master)
         self.configWidget.pack(side='top')
@@ -52,9 +87,8 @@ class Window(ttk.Frame):
         self.dataWidget.pack(side='top')
         self.notebook.add(self.dataWidget, text='历史数据')
         
-        self.topBar = tk.Frame(self.configWidget, relief='flat', bd=1)
-        self.topBar.pack(side='top', fill='x')
-        
+        for i in range(len(self.notebook.tabs())):
+            self.notebook.tab(i,state='disabled')
         self.body = tk.Frame(self.configWidget)
         self.body.pack(side='top', fill='both')
         
@@ -78,24 +112,6 @@ class Window(ttk.Frame):
         self.removeFeatureButton.pack(side='left')
 
         #self.modelName = tk.StringVar(self.master)
-        self.modelName = None
-
-        self.features = json.loads(open(path / 'config'/'features.json','r').read())
-        self.treatments = json.loads(open(path / 'config'/ 'treatments.json','r').read())
-        
-
-        
-        self.cb = tk.Frame(self.topBar)
-        self.cb.pack(side='left',expand=True)
-        
-        self.combokey = tk.Label(self.cb, text='当前工艺：')
-        self.combokey.pack(side='left')
-        
-        self.combo = ttk.Combobox(self.cb, values=['请选择模型'] + self.treatments)
-        self.combo.pack(side='left')
-        self.combo.current(0)
-        self.combo.bind("<<ComboboxSelected>>", self.loadModel)
-        
         # self.modelOptions = ttk.OptionMenu(self.cb, self.modelName, '请选择模型', *self.treatments, command=self.loadModel)
         # self.modelOptions.configure(width=max([len(e) for e in self.treatments])+5)
         # alwaysActiveStyle(self.modelOptions)
@@ -104,18 +120,7 @@ class Window(ttk.Frame):
         
         ###################################################################
         #Body Layout
-        self.box = tk.Frame(self.body)
-        self.box.pack(side='top', fill='x', expand=True)
-        
-        row1 = tk.Frame(self.body)
-        row1.pack(side='top', fill='x', expand=True)
-        self.about = tk.Label(row1,text='Juno AI 污水处理工艺建模', justify='left', font=(font, 15))
-        self.about.pack(side='left')
-        
-        row2 = tk.Frame(self.body)
-        row2.pack(side='top', fill='x', expand=True)
-        self.modelTitle = tk.Label(row2,text=self.modelName, font=(font, 20))
-        self.modelTitle.pack(side='left')
+
         
         ############################################################
         #Optimality Widget
@@ -170,9 +175,9 @@ class Window(ttk.Frame):
                             btn.configure(bg='tomato', fg='white')
                             btn.clicked = True
                         btns.append(btn)
-                    
+                depVarBtns.append(btns) 
                 optEntries.append(optRow)
-                depVarBtns.append(btns)
+                
 #        How to insert data
 #        optEntries[5][0].insert(tk.END,'Booty芝芝')
 #        optEntries[3][1].insert(tk.END,'月音瞳')
@@ -208,40 +213,46 @@ class Window(ttk.Frame):
         #buttons
         
         #福利
-        maxwidth = 1000
-        maxheight = 1000
+        self.maxwidth = 1600
+        self.maxheight = 790
+        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
+        #self.dataWidget.focus_set()
         button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
         button.pack(side='top')
         pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
         pic = random.choice(pics)
         imgpath = pic
         img = Image.open(imgpath)
-        ratio = min(maxwidth/img.size[0], maxheight/img.size[1])
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
         #wpercent = (basewidth/float(img.size[0]))
         #hsize = int((float(img.size[1])*float(wpercent)))
         img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
         
-        self.canvas = tk.Canvas(self.dataWidget, height=1000, width=1000) 
+        self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
         self.img = ImageTk.PhotoImage(img)  
         self.canvas.create_image(0,0,anchor='nw',image=self.img)  
         self.canvas.pack(expand=True) 
-        
+        self.canvas.bind('<Button-1>',self.changePicByKey)
+    
+    def changePicByKey(self, event):
+        self.changePic()
+        #print('triggered')
+    
     def changePic(self):
-        maxwidth = 1000
-        maxheight = 1000
-        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
-        button.pack(side='top')
+#        maxwidth = 700
+#        maxheight = 700
+
         pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
         pic = random.choice(pics)
         imgpath = pic
         img = Image.open(imgpath)
-        ratio = min(maxwidth/img.size[0], maxheight/img.size[1])
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
         #wpercent = (basewidth/float(img.size[0]))
         #hsize = int((float(img.size[1])*float(wpercent)))
         img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(img)  
         self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-        
+        #self.dataWidget.focus_set()
     def selectBtn(self, btn):
         if not btn.clicked:
             btn.configure(bg='tomato', fg='white')
@@ -268,10 +279,16 @@ class Window(ttk.Frame):
         if self.combo.get() != '请选择模型':
             self.modelName = self.combo.get()
             print(self.modelName)
-            self.modelTitle.configure(text=self.modelName)
+            for i in range(len(self.notebook.tabs())):
+                self.notebook.tab(i,state='normal')
+            self.about.configure(text='Juno AI 污水处理工艺建模：'+self.modelName)
+            self.status.configure(text='请选择进入模块')
         else:
             self.modelName = ''
-            self.modelTitle.configure(text=self.modelName)
+            self.about.configure(text='Juno AI 污水处理工艺建模：'+self.modelName)
+            for i in range(len(self.notebook.tabs())):
+                self.notebook.tab(i,state='disabled')
+            self.status.configure(text='请选择工艺！')
         return
     
     def cell_select(self, response):
@@ -292,7 +309,7 @@ if __name__ == "__main__":
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
     s = ttk.Style()
-    s.configure('TNotebook.Tab', width=20, padding=(5, 5))
+    s.configure('TNotebook.Tab', width=15, padding=(5, 5))
     s.configure('TNotebook', tabmargins = (2, 10, 0, 0))
 
     app = Window(root)
@@ -303,6 +320,6 @@ if __name__ == "__main__":
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('900x850')
+    root.geometry('1500x850')
     #show window
     root.mainloop()
