@@ -69,7 +69,7 @@ class Ui_Juno(object):
 
     def retranslateUi(self, Juno):
         _translate = QtCore.QCoreApplication.translate
-        Juno.setWindowTitle(_translate("Juno", "MainWindow"))
+        Juno.setWindowTitle(_translate("Juno", "Juno"))
         self.label.setText(_translate("Juno", "Welcome!"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Juno", "Tab 1"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Juno", "Tab 2"))
