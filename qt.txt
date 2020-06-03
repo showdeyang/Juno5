@@ -10,8 +10,9 @@ create *.ui file
 
 cd into dir containing *.ui
 
-pyuic5 example.ui >> example.py
+pyuic5 -x example.ui >> example.py #-x means executable, so the below 'if__name__ ... ' is not needed.
 
+#################################
 open example.py, add at the end:
 
 if __name__ == '__main__':

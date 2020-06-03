@@ -221,46 +221,46 @@ class Window(ttk.Frame):
         #buttons
         
 #        #福利
-#        self.maxwidth = 1600
-#        self.maxheight = 790
-#        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
-#        #self.dataWidget.focus_set()
-#        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
-#        button.pack(side='top')
-#        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-#        pic = random.choice(pics)
-#        imgpath = pic
-#        img = Image.open(imgpath)
-#        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-#        #wpercent = (basewidth/float(img.size[0]))
-#        #hsize = int((float(img.size[1])*float(wpercent)))
-#        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-#        
-#        self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
-#        self.img = ImageTk.PhotoImage(img)  
-#        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
-#        self.canvas.pack(expand=True) 
-#        self.canvas.bind('<Button-1>',self.changePicByKey)
-#    
-#    def changePicByKey(self, event):
-#        self.changePic()
-#        #print('triggered')
-#    
-#    def changePic(self):
-##        maxwidth = 700
-##        maxheight = 700
-#
-#        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-#        pic = random.choice(pics)
-#        imgpath = pic
-#        img = Image.open(imgpath)
-#        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-#        #wpercent = (basewidth/float(img.size[0]))
-#        #hsize = int((float(img.size[1])*float(wpercent)))
-#        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-#        self.img = ImageTk.PhotoImage(img)  
-#        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-#        #self.dataWidget.focus_set()
+        self.maxwidth = 1600
+        self.maxheight = 790
+        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
+        #self.dataWidget.focus_set()
+        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
+        button.pack(side='top')
+        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pic = random.choice(pics)
+        imgpath = pic
+        img = Image.open(imgpath)
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        
+        self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
+        self.canvas.pack(expand=True) 
+        self.canvas.bind('<Right>',self.changePicByKey)
+    
+    def changePicByKey(self, event):
+        self.changePic()
+        #print('triggered')
+    
+    def changePic(self):
+#        maxwidth = 700
+#        maxheight = 700
+
+        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pic = random.choice(pics)
+        imgpath = pic
+        img = Image.open(imgpath)
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
+        self.canvas.focus_set()
     def selectBtn(self, btn):
         if not btn.clicked:
             btn.configure(bg='tomato', fg='white')
