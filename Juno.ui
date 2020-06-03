@@ -10,6 +10,18 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>50</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>微软雅黑</family>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Juno</string>
   </property>
@@ -18,7 +30,13 @@
     <normaloff>assets/juneng.png</normaloff>assets/juneng.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <property name="maximumSize">
+    <size>
+     <width>799</width>
+     <height>551</height>
+    </size>
+   </property>
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -28,8 +46,14 @@
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetNoConstraint</enum>
+     </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
        <item>
         <widget class="QComboBox" name="modelOptionComboBox">
          <property name="currentText">
@@ -57,6 +81,9 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Preferred</enum>
+         </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>588</width>
@@ -69,6 +96,18 @@
      </item>
      <item>
       <widget class="QTabWidget" name="tabWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="tabPosition">
         <enum>QTabWidget::North</enum>
        </property>
@@ -82,19 +121,28 @@
         <bool>true</bool>
        </property>
        <widget class="QWidget" name="configTab">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <attribute name="title">
          <string>模型定义配置</string>
         </attribute>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>20</y>
            <width>721</width>
-           <height>431</height>
+           <height>441</height>
           </rect>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetNoConstraint</enum>
+          </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
@@ -107,10 +155,16 @@
             <item>
              <widget class="QTableWidget" name="optTableWidget">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>700</height>
+               </size>
               </property>
               <property name="sizeAdjustPolicy">
                <enum>QAbstractScrollArea::AdjustToContents</enum>
@@ -164,6 +218,13 @@
                <property name="text">
                 <string>进水指标</string>
                </property>
+               <property name="background">
+                <color>
+                 <red>245</red>
+                 <green>245</green>
+                 <blue>245</blue>
+                </color>
+               </property>
               </column>
               <column>
                <property name="text">
@@ -215,6 +276,19 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="saveOptButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>保存最优条件</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
@@ -228,6 +302,18 @@
             </item>
             <item>
              <widget class="QTreeWidget" name="treeWidget">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>402</height>
+               </size>
+              </property>
               <column>
                <property name="text">
                 <string>出水指标</string>
@@ -311,6 +397,19 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="depButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>保存指标依赖关系</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -342,7 +441,7 @@
      <x>0</x>
      <y>0</y>
      <width>799</width>
-     <height>28</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="configMenu">

@@ -69,7 +69,7 @@ class Window(ttk.Frame):
 #        self.modelTitle.pack(side='left')
         
         self.notebook = ttk.Notebook(self.master, cursor='hand2')
-        self.notebook.pack(side='top',fill='both')
+        self.notebook.pack(side='top')#,fill='both'
         
         self.configWidget = tk.Frame(self.master)
         self.configWidget.pack(side='top')
@@ -187,15 +187,23 @@ class Window(ttk.Frame):
                 label.pack(side='left')
                 
 #        How to insert data
-#        optEntries[5][0].insert(tk.END,'Booty芝芝')
-#        optEntries[3][1].insert(tk.END,'月音瞳')
+        optEntries[5][0].insert(tk.END,'Booty芝芝')
+        optEntries[3][1].insert(tk.END,'月音瞳')
+        
+        ###############
+        #make cells read-only, but appearing as if it's part of the sheet.
+        for row in optEntries:
+            for entry in row:
+                entry.configure(state='disabled', disabledbackground='white', disabledforeground='black')
         
         captionFrame = tk.Frame(self.optFrame)
         captionFrame.pack(side='top', fill='x', expand=True)
         caption = tk.Label(captionFrame, text='\n注：*必填', font=(font, 9))
         caption.pack(side='left', fil='x')
         
-
+        btn = ttk.Button(self.optFrame,text='get entries', command=lambda : self.readEntries(optEntries))
+        btn.pack(side='top')
+        
         ##################################
         #add buttons here for optimality Frame
         #######################################################################
@@ -241,6 +249,13 @@ class Window(ttk.Frame):
         self.canvas.create_image(0,0,anchor='nw',image=self.img)  
         self.canvas.pack(expand=True) 
         self.canvas.bind('<Right>',self.changePicByKey)
+    
+    def readEntries(self, optEntries):
+        for row in optEntries:
+            for entry in row:
+                if entry.get().strip() != '':
+                    print(entry.get())
+    
     
     def changePicByKey(self, event):
         self.changePic()
@@ -358,6 +373,6 @@ if __name__ == "__main__":
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1500x850')
+    root.geometry('1300x850')
     #show window
     root.mainloop()
