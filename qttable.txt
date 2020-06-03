@@ -1,0 +1,44 @@
+#How to make table with some cells readable/editable
+
+class Ui (object):
+    def setupUi():
+        self.tableName = QtGui.QTableWidget(self.layoutWidget_20)
+        self.tableName.setObjectName(_fromUtf8("twHistoricoDisciplinas"))
+        self.tableName.setColumnCount(4)
+        self.tableName.setRowCount(3)
+        
+class MainWindow(QtGui.QMainWindow):
+    def __init__(self):
+        self.ui = Ui()
+        self.ui.setupUi(self)
+        self.createtable()
+
+    #creating a tw cell
+    def cell(self,var=""):
+            item = QtGui.QTableWidgetItem()
+            item.setText(var)
+            return item
+
+    def createtable(self):
+         rows = self.tableName.rowCount()
+         columns = self.tableName.columnCount()
+         for i in range(rows):
+             for j in range(columns):
+                 item = self.cell("text")
+                 # execute the line below to every item you need locked
+                 
+                 item.setFlags(QtCore.Qt.ItemIsEnabled)
+                 self.ui.tableName.setItem(i, j, item)
+
+#################  
+#The solution is the line "item.setFlags(QtCore.Qt.ItemIsEnabled)", you use it to set the cell property QtCore.Qt.ItemIsEnabled to disabled, so you can't select or edit the cell
+
+Constant	Value	Description               
+Qt::NoItemFlags	0	It does not have any properties set.
+Qt::ItemIsSelectable	1	It can be selected.
+Qt::ItemIsEditable	2	It can be edited.
+Qt::ItemIsDragEnabled	4	It can be dragged.
+Qt::ItemIsDropEnabled	8	It can be used as a drop target.
+Qt::ItemIsUserCheckable	16	It can be checked or unchecked by the user.
+Qt::ItemIsEnabled	32	The user can interact with the item.
+Qt::ItemIsTristate	64	The item is checkable with three separate states.

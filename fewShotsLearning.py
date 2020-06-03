@@ -27,6 +27,8 @@ array2Dict = lambda array, features: dict(zip(list(features),array))
 #trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
 
 def training(X,Y, modelname):
+    if not os.path.isdir(path / 'models'/ modelname):
+        os.mkdir(path / 'models'/modelname)
     depVarFile = modelname + '.depVar.json'
     with open(path / 'models'/ modelname/ depVarFile,'r') as f:
         depVars = json.loads(f.read())
@@ -70,9 +72,9 @@ def training(X,Y, modelname):
         joblib.dump(regr, file)
         i+=1
     
-    return Ypred, regrs, errorByRows, errorByCols
+    return Ypred, errorByRows, errorByCols
 
-def testing(X,Y, modelname, regrs):
+def testing(X,Y, modelname):
     depVarFile = modelname + '.depVar.json'
     with open(path / 'models'/ modelname/ depVarFile,'r') as f:
         depVars = json.loads(f.read())
@@ -113,14 +115,16 @@ def testing(X,Y, modelname, regrs):
     e[np.isinf(e)] = 0
     errorByRows = np.mean(e,axis=1)*100
     errorByCols = np.mean(e,axis=0)*100
+    
+    Ypred = list(map(lambda y: array2Dict(y,features), Ypred))
+    
     return Ypred, errorByRows, errorByCols
 
 if __name__=='__main__':
-
+    t1 = time.time()
     modelname = '厌氧'   
     print('TRAINING')
-    if not os.path.isdir(path / 'models'/ modelname):
-        os.mkdir(path / 'models'/modelname)
+
     
     model = te.loadModel(modelname)
     opt = te.parseModel(model)[0]
@@ -148,13 +152,13 @@ if __name__=='__main__':
     with open(path / 'models'/ modelname / depVarFile,'w') as f:
         f.write(json.dumps(depVars))
         
-    Ypred, regrs, ebr, ebc = training(X,Y, modelname)
-    
+    Ypred, ebr, ebc = training(X,Y, modelname)
+    t2 = time.time()
     ########################
     
     print("\nTESTING")
     X,Y = [],[]
-    for i in range(1):
+    for i in range(10):
         x = ww.wastewater()
         if random.random() > 0.0:
             x.generateFromOpt(opt)
@@ -166,67 +170,16 @@ if __name__=='__main__':
         #print(y['COD'])
         Y.append(y)
     
-    Ypred, ebr, ebc = testing(X,Y, modelname, regrs)
+    Ypred, ebr, ebc = testing(X,Y, modelname)
 
-    Y2 = list(map(lambda arr: array2Dict(arr, Y[0].keys()), Ypred))
-    print(Y,Y2)
     print('error by rows', ebr)
     print('error by cols', ebc)
     print('mean error', np.mean(ebr), '%')
     print('this sample error', ebr[0], '%')
     for feature in Y[0]:
-        print(feature, Y[0][feature], Y2[0][feature])
-    
-#    for regr in regrs:
-#        print(regrs.index(regr),list(Y[0].keys())[regrs.index(regr)],regr._program)
-#    trX,trY = map(lambda x: np.array(list(map(dict2Array, x))), [X,Y])
-#    
-#    outputVar = '可生化性'
-#    dependentVars ='可生化性',# ('温度','COD','pH','TN','重金属','SS（纤维）','SS（絮状）','Cond','可生化性')
-#    
-#    outInd = x.features.index(outputVar)
-#    inInds = list(map(lambda var: x.features.index(var), dependentVars))
-#    Y1 = trY[:,outInd]
-#    X1 = list(zip(*list(map(lambda ind: trX[:,ind], inInds))))
-##     #regr = MLPRegressor(hidden_layer_sizes=(10,), max_iter=10000).fit(X1[:-1], Y1[:-1])#random_state=1,  
-##     #regr = RandomForestRegressor().fit(X1[:-1], Y1[:-1])
-##     regr = ElasticNetCV().fit(X1[:-5], Y1[:-5])
-##     #regr = KNeighborsRegressor(weights='distance').fit(X1[:-1], Y1[:-1])
-##     Y2 = np.clip(regr.predict(X1[:-5]),0,1e10) 
-##     [print(X1[:-5][i][0],Y1[:-5][i],Y2[i]) for i in range(len(Y2))]
-##     print('errors', np.mean(np.abs(Y2-Y1[:-5]))/np.max((Y1[:-5]))*100, '%')
-## #    #args, ypreds, errors, probs, optBounds = learning(X,Y) #TRAINING GOES HERE
-##     print('\nTESTING')
-##     Y2 = np.clip(regr.predict(X1[-5:]),0,1e10) 
-##     [print(X1[-5:][i][0],Y1[-5:][i],Y2[i]) for i in range(len(Y2))]
-##     print('errors', np.mean(np.abs(Y2-Y1[-5:]))/np.max((Y1[-5:]))*100, '%')
-## #    
-#    
-#    
-#    
-#    #regr = MLPRegressor(hidden_layer_sizes=(10,), max_iter=10000).fit(trX[:-5],trY[:-5]) 
-#    #regr = RandomForestRegressor().fit(trX[:-5],trY[:-5])
-#    regr = MultiTaskLassoCV(normalize=False).fit(trX[:-5], trY[:-5])
-#    #regr = KNeighborsRegressor().fit(trX[:-5],trY[:-5]) #weights='distance'
-#    Y2 = np.clip(regr.predict(trX[:-5]),0,1e10) 
-#    [print(trX[:-5][i][0],trY[:-5][i],Y2[i]) for i in range(len(Y2))]
-#    print('errors', np.mean(np.abs(Y2-trY[:-5]))/np.max((trY[:-5]))*100, '%')
-##    #args, ypreds, errors, probs, optBounds = learning(X,Y) #TRAINING GOES HERE
-#    print('\nTESTING')
-#    Y2 = np.clip(regr.predict(trX[-5:]),0,1e10) 
-#    [print(list(map( lambda arr: list(np.round(arr,2)), [trX[-5:][i],trY[-5:][i],Y2[i]]))) for i in range(len(Y2))]
-#    print('errors', np.mean(np.abs(Y2-trY[-5:]))/np.max((trY[-5:]))*100, '%')
-##    
-#    
-##    x = ww.wastewater()
-##    x.generateFromOpt(opt)
-##    #x.simulate(random=True)
-##    #ypred = predict(x,args,probs, optBounds) #TEST PREDICTION GOES HERE!
-##    
-##    y = te.treat(x,'厌氧')['effluent']
-##    print('\nactual y')
-##    list(map(lambda row: print(row[0][0],round(row[0][1],1),round(row[1][1],1),round(row[2][1],1)), zip(x.water.items(), ypred.water.items(),y.water.items())))
-##    print('probability distribution')
-##    print(np.array(probs).T)
-##    print('args')
-##    print(np.array(args).T)
+        print(feature, Y[0][feature], Ypred[0][feature])
+        
+    t3 = time.time()
+    print('training time', t2-t1)
+    print('testing time', t3-t2)
+    print('total time', t3-t1)
