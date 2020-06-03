@@ -1,116 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TabWidget</class>
- <widget class="QTabWidget" name="TabWidget">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1041</width>
-    <height>764</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Juno</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>assets/juneng.png</normaloff>assets/juneng.png</iconset>
-  </property>
-  <property name="autoFillBackground">
-   <bool>false</bool>
+   <string>MainWindow</string>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
   </property>
-  <property name="currentIndex">
-   <number>1</number>
-  </property>
-  <property name="movable">
-   <bool>true</bool>
-  </property>
-  <widget class="QWidget" name="configTab">
-   <attribute name="title">
-    <string>工艺模型配置</string>
-   </attribute>
-   <widget class="QComboBox" name="modelComboBox">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>86</width>
-      <height>25</height>
-     </rect>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>设置</string>
     </property>
-    <property name="toolTip">
-     <string extracomment="选择工艺"/>
-    </property>
-    <property name="statusTip">
-     <string extracomment="选择工艺"/>
-    </property>
-    <property name="currentText">
-     <string extracomment="请选择工艺">haha</string>
-    </property>
-    <item>
-     <property name="text">
-      <string>haha</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>hello</string>
-     </property>
-    </item>
+    <addaction name="actionTreatments"/>
+    <addaction name="actionFeatures"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
-   <widget class="QLabel" name="sampleLabel">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>97</y>
-      <width>411</width>
-      <height>20</height>
-     </rect>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>关于</string>
     </property>
-    <property name="text">
-     <string>This is a sample Label</string>
-    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionHelp"/>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>140</y>
-      <width>321</width>
-      <height>491</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="pixmap">
-     <pixmap>assets/res/005Lfd8Bgw1f6r91uwdouj30q913d10c(2).jpg</pixmap>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
+   <addaction name="menuEdit"/>
+   <addaction name="menuAbout"/>
   </widget>
-  <widget class="QWidget" name="trainingTab">
-   <attribute name="title">
-    <string>数据建模</string>
-   </attribute>
-   <widget class="QTableView" name="tableView">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>110</y>
-      <width>671</width>
-      <height>461</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionProcess">
+   <property name="text">
+    <string>编辑</string>
+   </property>
+  </action>
+  <action name="actionFeatures">
+   <property name="text">
+    <string>指标集</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>Juno简介</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>帮助</string>
+   </property>
+  </action>
+  <action name="actionTreatments">
+   <property name="text">
+    <string>工艺集</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

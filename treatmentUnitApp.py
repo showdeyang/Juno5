@@ -131,10 +131,11 @@ class Window(ttk.Frame):
         self.optFrameLabel.pack(side='top')
         
         self.optTable = ttk.Frame(self.optFrame)
-        self.optTable.pack(side='top')
+        self.optTable.pack(side='top', fill='x', expand=True)
         
         optEntries = []
         depVarBtns = []
+        self.depVars = {feature: feature for feature in self.features}
         headers = ['污水特征','最低值*','最高值*','依赖特征']
         width = 20
         for i in range(len(self.features)+1):
@@ -153,7 +154,7 @@ class Window(ttk.Frame):
                         label.pack()
             else:
                 row = tk.Frame(self.optTable, bd=1)
-                row.pack(side='top')
+                row.pack(side='top', fill='x', expand=True)
                 
                 label = tk.Label(row, text=self.features[i-1], width=width)
                 label.pack(side='left')
@@ -164,19 +165,26 @@ class Window(ttk.Frame):
                     e = tk.Entry(row, width=width, relief='groove', bg='#fefefe',bd=1, justify='right')
                     e.pack(side='left')
                     optRow.append(e)
-                
-                for feature in self.features:
-                        btn = tk.Button(row, text=feature, font=(font, 7), relief='flat', bg='white', fg='dark grey', width=10, bd=1, cursor='hand2')
-
-                        btn.configure(command=partial(self.selectBtn, btn))
-                        btn.pack(side='left')
-                        btn.clicked = False
-                        if self.features.index(feature)+1 == i:
-                            btn.configure(bg='tomato', fg='white')
-                            btn.clicked = True
-                        btns.append(btn)
-                depVarBtns.append(btns) 
                 optEntries.append(optRow)
+#                for feature in self.features:
+#                        btn = tk.Button(row, text=feature, font=(font, 7), relief='flat', bg='white', fg='dark grey', width=10, bd=1, cursor='hand2')
+#
+#                        btn.configure(command=partial(self.selectBtn, btn))
+#                        btn.pack(side='left')
+#                        btn.clicked = False
+#                        if self.features.index(feature)+1 == i:
+#                            btn.configure(bg='tomato', fg='white')
+#                            btn.clicked = True
+#                        btns.append(btn)
+#                depVarBtns.append(btns) 
+                feature = self.features[i-1]
+                button = ttk.Button(row, text='编辑依赖特征')
+                button.configure(command=partial(self.editDepVars, button, feature))
+                button.pack(side='left')
+                labelFrame = tk.Frame(row, relief='sunken', bd=1, width=50)
+                labelFrame.pack(side='left', fill='x', expand=True)
+                label = tk.Label(labelFrame, text=self.features[i-1], justify='left')
+                label.pack(side='left')
                 
 #        How to insert data
 #        optEntries[5][0].insert(tk.END,'Booty芝芝')
@@ -261,7 +269,37 @@ class Window(ttk.Frame):
             btn.configure(bg='white', fg='dark grey')
             btn.clicked = False
 
+    def editDepVars(self, button, fea):
+        editbox = tk.Toplevel()
+        editbox.title('编辑依赖关系')
+        label = tk.Label(editbox,text='选择以下依赖变量（可多选）')
+        label.pack(side='top')
+        checkboxes = tk.Frame(editbox, width=20)
+        checkboxes.pack(side='top',expand=True, fill='x')
+        varlist = []
+        for feature in self.features:
+            var = tk.IntVar()
+            cbframe = tk.Frame(checkboxes)
+            cbframe.pack(side='top',expand=True, fill='x')
+            checkbox = tk.Checkbutton(cbframe, variable=var, text=feature, onvalue=1, offvalue=0)
+            checkbox.pack(side='left')
+            varlist.append(var)
         
+        def genDepVars():
+            depVars = []
+            for feature in self.features:
+                ind = self.features.index(feature)
+                value = varlist[ind].get()
+                if value:
+                    depVars.append(feature)
+            print(depVars)
+            return genDepVars
+        
+        savebtn = ttk.Button(editbox, text='保存', command=genDepVars)
+        savebtn.pack(side='bottom')
+        
+    
+    
     def createNewModel(self):
         return
     

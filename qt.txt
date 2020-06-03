@@ -1,0 +1,24 @@
+sudo pip install pyqt5
+sudo pip install pyqt5-tools
+
+launch designer.exe from python/lib/site-packages
+
+################
+create *.ui file
+
+*.ui -> *.py
+
+cd into dir containing *.ui
+
+pyuic5 example.ui >> example.py
+
+open example.py, add at the end:
+
+if __name__ == '__main__':
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QTabWidget()
+    ui = Ui_TabWidget() #this may not be TabWidget, it depends.
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

@@ -1,70 +1,3 @@
-#import wx
-#import win32api
-#import sys, os
-#
-#APP_TITLE = u'动态布局'
-#APP_ICON = 'res/python.ico'
-#
-#class mainFrame(wx.Frame):
-#    '''程序主窗口类，继承自wx.Frame'''
-#    
-#    def __init__(self, parent):
-#        '''构造函数'''
-#        
-#        wx.Frame.__init__(self, parent, -1, APP_TITLE)
-#        self.SetBackgroundColour(wx.Colour(240, 240, 240))
-#        self.SetSize((800, 600))
-#        self.Center()
-#        
-#        # if hasattr(sys, "frozen") and getattr(sys, "frozen") == "windows_exe":
-#        #     exeName = win32api.GetModuleFileName(win32api.GetModuleHandle(None))
-#        #     icon = wx.Icon(exeName, wx.BITMAP_TYPE_ICO)
-#        # else :
-#        #     icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
-#        # self.SetIcon(icon)
-#        
-#        preview = wx.Panel(self, -1, style=wx.SUNKEN_BORDER)
-#        preview.SetBackgroundColour(wx.Colour(0, 0, 0))
-#        btn_capture = wx.Button(self, -1, u'拍照', size=(100, -1))
-#        btn_up = wx.Button(self, -1, u'↑', size=(30, 30))
-#        btn_down = wx.Button(self, -1, u'↓', size=(30, 30))
-#        btn_left = wx.Button(self, -1, u'←', size=(30, 30))
-#        btn_right = wx.Button(self, -1, u'→', size=(30, 30))
-#        tc = wx.TextCtrl(self, -1, '', style=wx.TE_MULTILINE)
-#        
-#        sizer_arrow_mid = wx.BoxSizer()
-#        sizer_arrow_mid.Add(btn_left, 0, wx.RIGHT, 16)
-#        sizer_arrow_mid.Add(btn_right, 0, wx.LEFT, 16)
-#        
-#        #sizer_arrow = wx.BoxSizer(wx.VERTICAL)
-#        sizer_arrow = wx.StaticBoxSizer(wx.StaticBox(self, -1, u'方向键'), wx.VERTICAL)
-#        sizer_arrow.Add(btn_up, 0, wx.ALIGN_CENTER|wx.ALL, 0)
-#        sizer_arrow.Add(sizer_arrow_mid, 0, wx.TOP|wx.BOTTOM, 1)
-#        sizer_arrow.Add(btn_down, 0, wx.ALIGN_CENTER|wx.ALL, 0)
-#        
-#        sizer_right = wx.BoxSizer(wx.VERTICAL)
-#        sizer_right.Add(btn_capture, 0, wx.ALL, 20)
-#        sizer_right.Add(sizer_arrow, 0, wx.ALIGN_CENTER|wx.ALL, 0)
-#        sizer_right.Add(tc, 1, wx.ALL, 10)
-#        
-#        sizer_max = wx.BoxSizer()
-#        sizer_max.Add(preview, 1, wx.EXPAND|wx.LEFT|wx.TOP|wx.BOTTOM, 5)
-#        sizer_max.Add(sizer_right, 0, wx.EXPAND|wx.ALL, 0)
-#        
-#        self.SetAutoLayout(True)
-#        self.SetSizer(sizer_max)
-#        self.Layout()
-#        
-#class mainApp(wx.App):
-#    def OnInit(self):
-#        self.SetAppName(APP_TITLE)
-#        self.Frame = mainFrame(None)
-#        self.Frame.Show()
-#        return True
-#
-#if __name__ == "__main__":
-#    app = mainApp()
-#    app.MainLoop()
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'sample.ui'
@@ -73,17 +6,69 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtWidgets, uic
-import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui(QtWidgets.QTabWidget):
-    def __init__(self):
-        super(Ui, self).__init__()
-        uic.loadUi('sample.ui', self)
-        self.show()
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(800, 600)
+        MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 28))
+        self.menubar.setObjectName("menubar")
+        self.menuEdit = QtWidgets.QMenu(self.menubar)
+        self.menuEdit.setObjectName("menuEdit")
+        self.menuAbout = QtWidgets.QMenu(self.menubar)
+        self.menuAbout.setObjectName("menuAbout")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        self.actionProcess = QtWidgets.QAction(MainWindow)
+        self.actionProcess.setObjectName("actionProcess")
+        self.actionFeatures = QtWidgets.QAction(MainWindow)
+        self.actionFeatures.setObjectName("actionFeatures")
+        self.actionExit = QtWidgets.QAction(MainWindow)
+        self.actionExit.setObjectName("actionExit")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionHelp = QtWidgets.QAction(MainWindow)
+        self.actionHelp.setObjectName("actionHelp")
+        self.actionTreatments = QtWidgets.QAction(MainWindow)
+        self.actionTreatments.setObjectName("actionTreatments")
+        self.menuEdit.addAction(self.actionTreatments)
+        self.menuEdit.addAction(self.actionFeatures)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.actionExit)
+        self.menuAbout.addAction(self.actionAbout)
+        self.menuAbout.addAction(self.actionHelp)
+        self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuAbout.menuAction())
 
-app = QtWidgets.QApplication(sys.argv)
-window = Ui()
-app.exec_()
+        self.retranslateUi(MainWindow)
+        self.actionExit.triggered['bool'].connect(MainWindow.close)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.menuEdit.setTitle(_translate("MainWindow", "设置"))
+        self.menuAbout.setTitle(_translate("MainWindow", "关于"))
+        self.actionProcess.setText(_translate("MainWindow", "编辑"))
+        self.actionFeatures.setText(_translate("MainWindow", "指标集"))
+        self.actionExit.setText(_translate("MainWindow", "退出"))
+        self.actionAbout.setText(_translate("MainWindow", "Juno简介"))
+        self.actionHelp.setText(_translate("MainWindow", "帮助"))
+        self.actionTreatments.setText(_translate("MainWindow", "工艺集"))
 
+if __name__ == '__main__':
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow() #this may not be TabWidget, it depends.
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
