@@ -75,6 +75,10 @@ def training(X,Y, modelname):
     return Ypred, errorByRows, errorByCols
 
 def testing(X,Y, modelname):
+    if not os.path.isdir(path / 'models'/ modelname):
+        print('model', modelname, 'not yet created!')
+        return
+    
     depVarFile = modelname + '.depVar.json'
     with open(path / 'models'/ modelname/ depVarFile,'r') as f:
         depVars = json.loads(f.read())

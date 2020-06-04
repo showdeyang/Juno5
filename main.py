@@ -12,6 +12,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(799, 600)
+        MainWindow.showMaximized()
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("assets/juneng.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
