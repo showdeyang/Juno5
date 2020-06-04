@@ -40,6 +40,7 @@ class Window(ttk.Frame):
         settingsMenu = tk.Menu(menu, tearoff=False, relief='raised')
         settingsMenu.add_command(label="创建工艺", command=self.createNewModel)
         settingsMenu.add_command(label="删除工艺", command=self.removeModel)
+        settingsMenu.add_separator()
         settingsMenu.add_command(label="创建指标", command=self.createFeature)
         settingsMenu.add_command(label="删除指标", command=self.removeFeature)
         menu.add_cascade(label="设置", menu=settingsMenu)
@@ -133,7 +134,7 @@ class Window(ttk.Frame):
         self.optFrameLabel.pack(side='top')
 
         
-        self.optTable = ttk.Frame(self.optFrame)
+        self.optTable = tk.Frame(self.optFrame, bg='grey')
         self.optTable.pack(side='top', fill='x', expand=True)
         
         self.optEntries = []
@@ -151,23 +152,23 @@ class Window(ttk.Frame):
                 for header in headers:
                     if header != headers[-1]:
                         if header == headers[0]:
-                            label = tk.Entry(row,width=width+5, disabledforeground='#fffffe', disabledbackground='seagreen', bd=0)
+                            label = tk.Entry(row,width=width+5, disabledforeground='#fffffe', disabledbackground='dark green', bd=1, relief='flat')
                         else:
-                            label = tk.Entry(row,width=width, disabledforeground='#fffffe', disabledbackground='seagreen', bd=0)
+                            label = tk.Entry(row,width=width, disabledforeground='#fffffe', disabledbackground='seagreen', bd=1, relief='flat')
                         label.insert(tk.END, header)
                         label.configure(state='disabled')
                         label.pack(side='left')
                     else:
                         frame = tk.Frame(row, bg='cornflowerblue')
                         frame.pack(side='left', fill='x')
-                        label = tk.Entry(row, disabledforeground='#fffffe', disabledbackground='cornflowerblue',bd=0, width=60)
+                        label = tk.Entry(row, disabledforeground='#fffffe', disabledbackground='cornflowerblue',bd=1, width=60, relief='flat')
                         
                         label.insert(tk.END, header)
                         label.configure(state='disabled')
                         label.pack(side='left',expand=True,fill='x')
             else:
                 feature = self.features[i-1]
-                row = tk.Frame(self.optTable)
+                row = tk.Frame(self.optTable, relief='flat', bd=1)
                 row.pack(side='top', expand=True)
                 
                 col1 = tk.Entry(row, width=width+5, bd=0)
@@ -178,14 +179,14 @@ class Window(ttk.Frame):
                 optRow = []  
                 #btns = []
                 for j in range(2):
-                    e = tk.Entry(row, width=width, bg='#fffffe',bd=0, justify='right')
+                    e = tk.Entry(row, width=width, bg='#fffffe',bd=1, justify='right', relief='groove')
                     e.pack(side='left')
                     optRow.append(e)
                 self.optEntries.append(optRow)
 
                 labelFrame = tk.Frame(row,bg='#fefefe',bd=0)
                 labelFrame.pack(side='left', expand=True, fill='x')
-                label = tk.Entry(labelFrame, justify='left', bg='white', bd=0, cursor='hand2')
+                label = tk.Entry(labelFrame, justify='left', bg='white', bd=1, relief='flat', cursor='hand2')
                 label.insert(tk.END, (', ').join(self.depVars[feature]))
                 label.configure(state='disabled', disabledbackground='white', disabledforeground='#32322D', width=60)
                 label.pack(side='left', expand=True,fill='x')
@@ -213,7 +214,7 @@ class Window(ttk.Frame):
         
         ##################################
         #add buttons here for optimality Frame
-        btn = ttk.Button(self.optFrame,text='get entries', command=lambda : self.readEntries(self.optEntries))
+        btn = ttk.Button(self.optFrame,text='get entries', command= self.readEntries)
         btn.pack(side='top')
         
         #######################################################################
@@ -240,53 +241,81 @@ class Window(ttk.Frame):
         
 ##############################################################        
 ##        #Easter Egg
-#        self.maxwidth = 1000
-#        self.maxheight = 790
-#        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
-#        #self.dataWidget.focus_set()
-#        button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
-#        button.pack(side='top')
-#        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-#        pic = random.choice(pics)
-#        imgpath = pic
-#        img = Image.open(imgpath)
-#        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-#        #wpercent = (basewidth/float(img.size[0]))
-#        #hsize = int((float(img.size[1])*float(wpercent)))
-#        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-#        
-#        self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
-#        self.img = ImageTk.PhotoImage(img)  
-#        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
-#        self.canvas.pack(expand=True) 
-#        self.canvas.bind('<Right>',self.changePicByKey)
+#         self.maxwidth = 1000
+#         self.maxheight = 790
+#         #self.dataWidget.bind('<Button-1>',self.changePicByKey)
+#         #self.dataWidget.focus_set()
+#         button = ttk.Button(self.dataWidget, text='换一张福利图', command=self.changePic)
+#         button.pack(side='top')
+#         pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+#         pic = random.choice(pics)
+#         imgpath = pic
+#         img = Image.open(imgpath)
+#         ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+#         #wpercent = (basewidth/float(img.size[0]))
+#         #hsize = int((float(img.size[1])*float(wpercent)))
+#         img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        
+#         self.canvas = tk.Canvas(self.dataWidget, height=self.maxheight, width=self.maxwidth) 
+#         self.img = ImageTk.PhotoImage(img)  
+#         self.canvas.create_image(0,0,anchor='nw',image=self.img)  
+#         self.canvas.pack(expand=True) 
+#         self.canvas.bind('<Right>',self.changePicByKey)
 
-#    def changePicByKey(self, event):
-#        self.changePic()
-#        #print('triggered')
-#    
-#    def changePic(self):
-##        maxwidth = 700
-##        maxheight = 700
-#
-#        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-#        pic = random.choice(pics)
-#        imgpath = pic
-#        img = Image.open(imgpath)
-#        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-#        #wpercent = (basewidth/float(img.size[0]))
-#        #hsize = int((float(img.size[1])*float(wpercent)))
-#        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-#        self.img = ImageTk.PhotoImage(img)  
-#        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-#        self.canvas.focus_set()
+#     def changePicByKey(self, event):
+#         self.changePic()
+#         #print('triggered')
+    
+#     def changePic(self):
+# #        maxwidth = 700
+# #        maxheight = 700
+#         #pics = glob.glob('D:\\Restricted\\miscp\\*')
+#         #print(len(pics))
+#         pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+#         pic = random.choice(pics)
+#         imgpath = pic
+#         img = Image.open(imgpath)
+#         ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+#         #wpercent = (basewidth/float(img.size[0]))
+#         #hsize = int((float(img.size[1])*float(wpercent)))
+#         img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+#         self.img = ImageTk.PhotoImage(img)  
+#         self.canvas.create_image(0,0, anchor='nw', image=self.img)  
+#         self.canvas.focus_set()
 
 ############################################################
-    def readEntries(self, optEntries):
-        for row in optEntries:
-            for entry in row:
-                if entry.get().strip() != '':
-                    print(entry.get())
+    def readEntries(self):
+        optDict = {}
+        for row , feature in zip(self.optEntries, self.features):
+            optDict[feature] = {}
+            for entry, key in zip(row, ['min','max']):
+                optDict[feature][key] = entry.get()
+        
+            
+        print('opt', optDict)
+        print('depVars', self.depVars)
+        
+        ##############################
+        #check entries for validity (float? empty?)
+        
+        ###############################
+        #check if model folder exists, if not, create it.
+        if not os.path.isdir( path / 'models'/ self.modelName):
+            os.mkdir(path / 'models' / self.modelName)
+        #save optDict and depVars in the model folder.
+        optFile, depVarFile = self.modelName + '.opt.json', self.modelName + '.depVar.json'
+        optFilePath = path / 'models' / self.modelName / optFile
+        depVarFilePath = path / 'models' / self.modelName / depVarFile
+        
+        with open(optFilePath, 'w') as f:
+            f.write(json.dumps(optDict))
+        
+        with open(depVarFilePath,'w') as f:
+            f.write(json.dumps(self.depVars))
+            
+        #show status
+        self.status.configure(text='模型保存成功！')
+        #very useful to have a status icon indicating whether there are any unsaved changes, if not, prompts for saving before leaving.
         
     def editDepVars(self, fea, event):
         editbox = tk.Toplevel()
@@ -478,6 +507,7 @@ class Window(ttk.Frame):
         
         self.win4option = ttk.Combobox(self.win4, values=['请选择指标'] + self.features)
         self.win4option.pack(side='top')
+        self.win4option.current(0)
         
         emptyFrame = tk.Frame(self.win4, height=10)
         emptyFrame.pack()
@@ -518,15 +548,17 @@ class Window(ttk.Frame):
             self.status.configure(text='请选择进入模块')
             
             #load the depvars model if it already exists, else it is created on the spot:
-            if os.path.isfile('modelname/depVars.json'):
-                self.depVars = json.loads(open('depVars.json','r').read())
+            depvarFile = self.modelName + '.depVar.json'
+            if os.path.isfile(path / 'models' / self.modelName / depvarFile):
+                self.depVars = json.loads(open(path / 'models' / self.modelName / depvarFile,'r').read())
             else:
                 self.depVars = {feature: [feature] for feature in self.features}
     
             #if opt model exists, load it
+            optFile = self.modelName + '.opt.json'
             self.opt = []
-            if os.path.isfile('modelname/optDict.json'):
-                self.optDict = json.loads(open('optDict.json','r').read())
+            if os.path.isfile(path / 'models' / self.modelName / optFile):
+                self.optDict = json.loads(open(path / 'models' / self.modelName / optFile,'r').read())
                 
                 for feature in self.optDict:
                     vec = [self.optDict[feature]['min'], self.optDict[feature]['max']]
