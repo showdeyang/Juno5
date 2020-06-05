@@ -12,6 +12,9 @@ import json
 from functools import partial
 #from tksheet import Sheet
 from tkintertable import TableCanvas, TableModel
+from MyWidgets import ScrolledWindow
+
+
 path = Path('./')
 APP_TITLE = '工艺建模'
 APP_ICON = (path / 'assets' / 'juneng.png').absolute()
@@ -91,7 +94,7 @@ class Window(ttk.Frame):
         emptyFrame = tk.Frame(self.header, height=20)
         emptyFrame.pack(side='bottom')
 
-        self.notebook = ttk.Notebook(self.master, cursor='hand2', width=1400, height=700)
+        self.notebook = ttk.Notebook(self.master, cursor='hand2', width=1000, height=700)
         self.notebook.pack(side='top')#,fill='both'
         
         self.configWidget = tk.Frame(self.master)
@@ -141,9 +144,13 @@ class Window(ttk.Frame):
 
         self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
         self.optFrameLabel.pack(side='top')
-
         
-        self.optTable = tk.Frame(self.optFrame)
+        print(self.optFrame)
+        self.optScrolledWindow = ScrolledWindow(self.optFrame, canv_h=600, canv_w=600)
+        self.optScrolledWindow.pack(side='top')
+        
+        
+        self.optTable = tk.Frame(self.optScrolledWindow.scrollwindow)
         self.optTable.pack(side='top', fill='x', expand=True)
         
         self.optEntries = []
@@ -725,13 +732,13 @@ if __name__ == "__main__":
     s.configure('TNotebook', tabmargins = (0, 0, 0, 0))
 
     app = Window(root)
-    if platform.system() == 'Windows':
-        root.wm_state("zoomed")
-    else:
-        root.wm_attributes('-zoomed',1)
+#    if platform.system() == 'Windows':
+#        root.wm_state("zoomed")
+#    else:
+#        root.wm_attributes('-zoomed',1)
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1300x850')
+    root.geometry('1000x850')
     #show window
     root.mainloop()
