@@ -116,6 +116,12 @@ def loadModel(modelName):
 
     return model
 
+def loadOpt(modelName):
+    modelFile = modelName + '.opt.json'
+    model = json.loads(open(path / 'models'/ modelName/modelFile,'r').read())
+
+    return model
+
 def parseModel(model):
     
     def isnum(x):

@@ -117,8 +117,17 @@ class Window(ttk.Frame):
         
         self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
         self.statusBar.pack(side='bottom', fill='x')
+        
+        self.emptyBox = tk.Frame(self.statusBar, width=5,height=10)
+        self.emptyBox.pack(side='left')
+        
+        self.savedBox = tk.Frame(self.statusBar, bg='red', width=10, height=10)
+        self.savedBox.pack(side='left')
+
         self.status = tk.Label(master=self.statusBar, text='请选择模型')
         self.status.pack(side='left')
+        
+        
         
         ########################################################################
         #Topbar layout
@@ -134,14 +143,15 @@ class Window(ttk.Frame):
         self.optFrameLabel.pack(side='top')
 
         
-        self.optTable = tk.Frame(self.optFrame, bg='grey')
+        self.optTable = tk.Frame(self.optFrame)
         self.optTable.pack(side='top', fill='x', expand=True)
         
         self.optEntries = []
         self.depVarLabels = []
         self.depVars = {feature: [feature] for feature in self.features}
         self.opt = []
-            
+        self.saved = False
+        
         headers = ['污水指标','最低值*','最高值*','依赖指标']
         width = 10
         for i in range(len(self.features)+1):
@@ -171,7 +181,7 @@ class Window(ttk.Frame):
                 row = tk.Frame(self.optTable, relief='flat', bd=1)
                 row.pack(side='top', expand=True)
                 
-                col1 = tk.Entry(row, width=width+5, bd=0)
+                col1 = tk.Entry(row, width=width+5, bd=0, cursor='arrow')
                 col1.insert(tk.END,self.features[i-1])
                 col1.configure(state='disabled', disabledbackground='aliceblue', disabledforeground='#32322D')
                 col1.pack(side='left')
@@ -180,13 +190,14 @@ class Window(ttk.Frame):
                 #btns = []
                 for j in range(2):
                     e = tk.Entry(row, width=width, bg='#fffffe',bd=1, justify='right', relief='groove')
+                    e.bind('<KeyRelease>', self.checkUnsaved)
                     e.pack(side='left')
                     optRow.append(e)
                 self.optEntries.append(optRow)
 
                 labelFrame = tk.Frame(row,bg='#fefefe',bd=0)
                 labelFrame.pack(side='left', expand=True, fill='x')
-                label = tk.Entry(labelFrame, justify='left', bg='white', bd=1, relief='flat', cursor='hand2')
+                label = tk.Entry(labelFrame, justify='left', bg='white', bd=0, relief='flat', cursor='hand2')
                 label.insert(tk.END, (', ').join(self.depVars[feature]))
                 label.configure(state='disabled', disabledbackground='white', disabledforeground='#32322D', width=60)
                 label.pack(side='left', expand=True,fill='x')
@@ -214,7 +225,7 @@ class Window(ttk.Frame):
         
         ##################################
         #add buttons here for optimality Frame
-        btn = ttk.Button(self.optFrame,text='get entries', command= self.readEntries)
+        btn = ttk.Button(self.optFrame,text='保存配置', command= self.saveEntries, cursor='hand2')
         btn.pack(side='top')
         
         #######################################################################
@@ -284,13 +295,76 @@ class Window(ttk.Frame):
 #         self.canvas.focus_set()
 
 ############################################################
-    def readEntries(self):
+    def checkUnsaved(self, event=1):
+        self.status.configure(text='')
+        opt = []
+        for row , feature in zip(self.optEntries, self.features):
+            v = []
+            for entry in row:
+                if entry.get():
+                    try:
+                        v.append(float(entry.get()))
+                    except ValueError:
+                        self.status.configure(text='错误：输入栏'+feature+'中必须是数字')
+                        self.saved = False
+                        self.savedBox.configure(bg='red')
+                        return
+                    
+                else:
+                    self.status.configure(text='错误：输入栏'+feature+'中不能为空')
+                    self.saved = False
+                    self.savedBox.configure(bg='red')
+                    return
+            #print(opt)
+            if v[1] < v[0]:
+                self.status.configure(text='错误：输入栏' + feature + '的最高值不能小于最低值')
+                self.saved = False
+                self.savedBox.configure(bg='red')
+                return
+            opt.append(v)
+
+        depvarFile = self.modelName + '.depVar.json'
+        if os.path.isfile(path / 'models' / self.modelName / depvarFile):
+            depvar = json.loads(open(path / 'models' / self.modelName / depvarFile, 'r').read())
+        else:
+            depvar = {feature: [feature] for feature in self.features}
+
+        print('depvar',depvar)
+        print('self depvar', self.depVars)
+        print(depvar == self.depVars)
+    
+        if opt != self.opt or depvar != self.depVars:
+            self.saved = False
+            self.savedBox.configure(bg='blue')
+            self.status.configure(text='输入正常，未保存')
+       
+        else:
+            self.saved = True
+            self.savedBox.configure(bg='lime green')
+            self.status.configure(text='正常')
+
+        
+        
+        
+    def saveEntries(self):
+        self.checkUnsaved()
         optDict = {}
         for row , feature in zip(self.optEntries, self.features):
             optDict[feature] = {}
             for entry, key in zip(row, ['min','max']):
-                optDict[feature][key] = entry.get()
-        
+                if entry.get():
+                    try:
+                        optDict[feature][key] = float(entry.get())
+                    except ValueError:
+                        self.status.configure(text='错误：输入栏'+feature+'中必须是数字')
+                        return
+                else:
+                    self.status.configure(text='错误：输入栏'+feature+'中不能为空')
+                    return
+            print(optDict)
+            if optDict[feature]['max'] < optDict[feature]['min']:
+                self.status.configure(text='错误：输入栏' + feature + '的最高值不能小于最低值')
+                return
             
         print('opt', optDict)
         print('depVars', self.depVars)
@@ -312,12 +386,15 @@ class Window(ttk.Frame):
         
         with open(depVarFilePath,'w') as f:
             f.write(json.dumps(self.depVars))
-            
+         
         #show status
         self.status.configure(text='模型保存成功！')
         #very useful to have a status icon indicating whether there are any unsaved changes, if not, prompts for saving before leaving.
+        self.saved = True
+        self.savedBox.configure(bg='lime green')
         
     def editDepVars(self, fea, event):
+        
         editbox = tk.Toplevel()
         editbox.title('编辑指标依赖关系')
         
@@ -354,6 +431,7 @@ class Window(ttk.Frame):
 
             self.depVars[fea] = depVars
             print(self.depVars)
+            self.checkUnsaved()
             editbox.destroy()
             return depVars
         
@@ -365,7 +443,8 @@ class Window(ttk.Frame):
         
         emptyFrame = tk.Frame(editbox, height=10)
         emptyFrame.pack(side='top')
-    
+        
+        
     def createNewModel(self, event=7):
         win1 = tk.Toplevel()
         win1.wm_title("添加新工艺")
@@ -545,14 +624,20 @@ class Window(ttk.Frame):
             print(self.modelName)
             for i in range(len(self.notebook.tabs())):
                 self.notebook.tab(i,state='normal')
+                
+            
             self.status.configure(text='请选择进入模块')
             
             #load the depvars model if it already exists, else it is created on the spot:
             depvarFile = self.modelName + '.depVar.json'
             if os.path.isfile(path / 'models' / self.modelName / depvarFile):
                 self.depVars = json.loads(open(path / 'models' / self.modelName / depvarFile,'r').read())
+                self.saved = True
+                self.savedBox.configure(bg='lime green')
             else:
                 self.depVars = {feature: [feature] for feature in self.features}
+                self.saved = False
+                self.savedBox.configure(bg='red')
     
             #if opt model exists, load it
             optFile = self.modelName + '.opt.json'
@@ -568,6 +653,7 @@ class Window(ttk.Frame):
             if self.opt:
                 for i, row in enumerate(self.opt):
                     for j, cellValue in enumerate(row): 
+                        self.optEntries[i][j].delete(0,tk.END)
                         self.optEntries[i][j].insert(tk.END, cellValue)
             else:
                 #this is a new model instance

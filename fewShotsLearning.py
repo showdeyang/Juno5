@@ -131,8 +131,9 @@ if __name__=='__main__':
 
     
     model = te.loadModel(modelname)
-    opt = te.parseModel(model)[0]
-    opt['可生化性']['max'] = 100
+    #opt = te.parseModel(model)[0]
+    opt = te.loadOpt(modelname)
+    #opt['可生化性']['max'] = 100
     X,Y = [],[]
     for i in range(10):
         x = ww.wastewater()
