@@ -111,7 +111,7 @@ class Window(ttk.Frame):
         self.configFrame.pack(side='top')
         
         self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status, modelCombobox=self.combo)
-        self.configWidget.pack(side='top', fill='both', expand=True)
+        self.configWidget.pack(side='top')
         self.notebook.add(self.configFrame, text='定义与配置')
         
         

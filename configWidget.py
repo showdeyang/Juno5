@@ -34,7 +34,7 @@ class Window(tk.Frame):
         
         if not modelCombobox:
             self.row = tk.Frame(self.master)
-            self.row.pack(side='top', expand=True)
+            self.row.pack(side='top')
             
             self.cb = tk.Frame(self.row)
             self.cb.pack(side='top')
@@ -51,13 +51,13 @@ class Window(tk.Frame):
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
         self.optFrame = tk.Frame(self.master)
-        self.optFrame.pack(side='top',fill='y')
+        #self.optFrame.pack(side='top',fill='y')
         
         self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
-        self.optFrameLabel.pack(side='top', expand=True)
+        self.optFrameLabel.pack(side='top')
         
         self.optTable = tk.Frame(self.optFrame)
-        self.optTable.pack(side='top', expand=True)
+        self.optTable.pack(side='top', fill='y')
         
         if not statusLabel:
             self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
@@ -304,10 +304,11 @@ class Window(tk.Frame):
         #print(self.modelName.get())
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
         if self.combo.get() != '请选择模型':
+            self.optFrame.pack(side='top')
             self.modelName = self.combo.get()
             print(self.modelName)
             #self.modelLabel.configure(text=self.modelName)
-
+            self.status.configure(text='正常')
             
             #load the depvars model if it already exists, else it is created on the spot:
             depvarFile = self.modelName + '.depVar.json'
@@ -317,7 +318,7 @@ class Window(tk.Frame):
                 
             else:
                 self.depVars = {feature: [feature] for feature in self.features}
-                
+                self.status.configure(text='新模型')
                 
     
             #if opt model exists, load it
@@ -352,7 +353,7 @@ class Window(tk.Frame):
         else:
             self.modelName = ''
             #self.modelLabel.configure(text='')
-            self.optTable.configure(state='disabled')
+            self.optFrame.pack_forget()
             self.status.configure(text='请选择工艺！')
         return
 
