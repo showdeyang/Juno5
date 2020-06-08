@@ -145,12 +145,12 @@ class Window(ttk.Frame):
         self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
         self.optFrameLabel.pack(side='top')
         
-        print(self.optFrame)
-        self.optScrolledWindow = ScrolledWindow(self.optFrame, canv_h=600, canv_w=600)
-        self.optScrolledWindow.pack(side='top')
+#        print(self.optFrame)
+#        self.optScrolledWindow = ScrolledWindow(self.optFrame, canv_h=600, canv_w=600)
+#        self.optScrolledWindow.pack(side='top')
         
         
-        self.optTable = tk.Frame(self.optScrolledWindow.scrollwindow)
+        self.optTable = tk.Frame(self.optFrame)
         self.optTable.pack(side='top', fill='x', expand=True)
         
         self.optEntries = []
@@ -237,9 +237,20 @@ class Window(ttk.Frame):
         
         #######################################################################
         #training widget
-        self.trainingTitle = tk.Label(self.trainingWidget, text='训练数据')
-        self.trainingTitle.pack(side='top')
+        self.trainingFrame = tk.Frame(self.trainingWidget)
+        self.trainingFrame.pack(side='top')
+        
+        self.trainingFrameLabel = ttk.Label(self.trainingFrame, text='\n专家输入正确答案来优化模型预测能力\n', font=(font, 13))
+        self.trainingFrameLabel.pack(side='top')
+        
         #training table, input and output
+        self.trainingTable = tk.Frame(self.trainingFrame)
+        self.trainingTable.pack(side='top')
+        
+        #grid layout for columns and rows inside table
+#        entries = []
+#        for 
+#        
         #graph
         #buttons
         
