@@ -27,6 +27,9 @@ class Window(tk.Frame):
         tk.Frame.__init__(self, master)
         
         self.master = master
+                
+        emptyFrame = tk.Frame(self.master, height=15)
+        emptyFrame.pack(side='top')
         
         self.modelName = modelName
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
@@ -85,20 +88,20 @@ class Window(tk.Frame):
                 for header in headers:
                     if header != headers[-1]:
                         if header == headers[0]:
-                            label = tk.Entry(row,width=width+5, disabledforeground='#fffffe', disabledbackground='dark green', bd=1, relief='flat')
+                            label = tk.Entry(row,width=width+5, disabledforeground='#fffffe', disabledbackground='steelblue', bd=1, relief='flat')
                         else:
-                            label = tk.Entry(row,width=width, disabledforeground='#fffffe', disabledbackground='seagreen', bd=1, relief='flat')
+                            label = tk.Entry(row,width=width, disabledforeground='#fffffe', disabledbackground='slategray', bd=1, relief='flat')
                         label.insert(tk.END, header)
                         label.configure(state='disabled')
                         label.pack(side='left')
                     else:
-                        frame = tk.Frame(row, bg='cornflowerblue')
-                        frame.pack(side='left', fill='x')
-                        label = tk.Entry(row, disabledforeground='#fffffe', disabledbackground='cornflowerblue',bd=1, width=60, relief='flat')
+                        frame = tk.Frame(row)
+                        frame.pack(side='left')
+                        label = tk.Entry(row, disabledforeground='#fffffe', disabledbackground='lightseagreen', width=60, relief='flat', justif='center')
                         
                         label.insert(tk.END, header)
                         label.configure(state='disabled')
-                        label.pack(side='left',expand=True,fill='x')
+                        label.pack(side='left',)
             else:
                 feature = self.features[i-1]
                 row = tk.Frame(self.optTable, relief='flat', bd=1)
@@ -106,7 +109,7 @@ class Window(tk.Frame):
                 
                 col1 = tk.Entry(row, width=width+5, bd=0, cursor='arrow')
                 col1.insert(tk.END,self.features[i-1])
-                col1.configure(state='disabled', disabledbackground='aliceblue', disabledforeground='#32322D')
+                col1.configure(state='disabled', disabledforeground='#32322D') #, disabledbackground='aliceblue'
                 col1.pack(side='left')
                 
                 optRow = []  
@@ -120,7 +123,7 @@ class Window(tk.Frame):
 
                 labelFrame = tk.Frame(row,bg='#fefefe',bd=0)
                 labelFrame.pack(side='left', expand=True, fill='x')
-                label = tk.Entry(labelFrame, justify='left', bg='white', bd=0, relief='flat', cursor='hand2')
+                label = tk.Entry(labelFrame, justify='center', bg='white', bd=0, relief='flat', cursor='hand2')
                 label.insert(tk.END, (', ').join(self.depVars[feature]))
                 label.configure(state='disabled', disabledbackground='white', disabledforeground='#32322D', width=60)
                 label.pack(side='left', expand=True,fill='x')
@@ -266,7 +269,7 @@ class Window(tk.Frame):
                 var.set(1)
             cbframe = tk.Frame(checkboxes)
             cbframe.pack(side='top')
-            checkbox = ttk.Checkbutton(cbframe, variable=var, text=feature, width=20, onvalue=1, offvalue=0)
+            checkbox = ttk.Checkbutton(cbframe, variable=var, text=feature, width=20, onvalue=1, offvalue=0, cursor='hand2')
             checkbox.pack(side='left')
             varlist.append(var)
         
