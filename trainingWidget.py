@@ -156,52 +156,52 @@ class Window(tk.Frame):
         
         self.RIGHT = tk.Frame(self.body)
         self.RIGHT.pack(side='right', fill='both', expand=True)
-        
+    ########################################################    
     #     ##Easter Egg
-    #     self.maxwidth = 750
-    #     self.maxheight = 750
-    #     #self.dataWidget.bind('<Button-1>',self.changePicByKey)
-    #     #self.dataWidget.focus_set()
+        self.maxwidth = 450
+        self.maxheight = 450
+        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
+        #self.dataWidget.focus_set()
 
-    #     pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-    #     pic = random.choice(pics)
-    #     imgpath = pic
-    #     img = Image.open(imgpath)
-    #     ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-    #     #wpercent = (basewidth/float(img.size[0]))
-    #     #hsize = int((float(img.size[1])*float(wpercent)))
-    #     img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pic = random.choice(pics)
+        imgpath = pic
+        img = Image.open(imgpath)
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
     
-    #     self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth) 
-    #     self.img = ImageTk.PhotoImage(img)  
-    #     self.canvas.create_image(0,0,anchor='nw',image=self.img)  
-    #     self.canvas.pack(expand=True) 
-    #     self.canvas.bind('<Right>',self.changePicByKey)
+        self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth) 
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
+        self.canvas.pack(expand=True) 
+        self.canvas.bind('<Right>',self.changePicByKey)
         
-    #     button = ttk.Button(self.RIGHT, text='换一张福利图', command=self.changePic)
-    #     button.pack(side='bottom')
+        button = ttk.Button(self.RIGHT, text='换一张福利图', command=self.changePic)
+        button.pack(side='bottom')
         
-    # def changePicByKey(self, event):
-    #     self.changePic()
-    #     #print('triggered')
+    def changePicByKey(self, event):
+        self.changePic()
+        #print('triggered')
     
-    # def changePic(self):
-    # #        maxwidth = 700
-    # #        maxheight = 700
-    #     pics = glob.glob('D:\\Restricted\\miscp\\*')
-    #     #print(len(pics))
-    #     #pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-    #     pic = random.choice(pics)
-    #     imgpath = pic
-    #     img = Image.open(imgpath)
-    #     ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-    #     #wpercent = (basewidth/float(img.size[0]))
-    #     #hsize = int((float(img.size[1])*float(wpercent)))
-    #     img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
-    #     self.img = ImageTk.PhotoImage(img)  
-    #     self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-    #     self.canvas.focus_set()
-    
+    def changePic(self):
+    #        maxwidth = 700
+    #        maxheight = 700
+        pics = glob.glob('D:\\Restricted\\miscp\\*')
+        #print(len(pics))
+        #pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pic = random.choice(pics)
+        imgpath = pic
+        img = Image.open(imgpath)
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
+        self.canvas.focus_set()
+    ####################################################
     def loadModel(self, event=1):
         self.modelName = self.combo.get()
         if self.modelName == '请选择模型':
