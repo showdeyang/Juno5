@@ -62,24 +62,15 @@ class Window(ttk.Frame):
         
         self.header = tk.Frame(self.master)
         self.header.pack(side='top', fill='x')
-        
-        emptyFrame = tk.Frame(self.header, height=10)
-        emptyFrame.pack(side='top')
-        
+
         self.row1 = tk.Frame(self.header)
         self.row1.pack(side='top', fill='x', expand=True)
         
-        emptyFrame = tk.Frame(self.header, height=10)
-        emptyFrame.pack(side='top')
-  
-        self.row2 = tk.Frame(self.header)
-        self.row2.pack(side='top', fill='x', expand=True)
-        
-        self.about = tk.Label(self.row1,text='JunoAI', font=(font, 15))
+        self.about = tk.Label(self.row1,text='\nJunoAI\n', font=(font, 15))
         self.about.pack()
         
-        self.topBar = tk.Frame(self.row2, relief='flat', bd=0)
-        self.topBar.pack(side='left', expand=True, fill='x')
+        # self.topBar = tk.Frame(self.row2, relief='flat', bd=0)
+        # self.topBar.pack(side='left', expand=True, fill='x')
         
         # self.cb = tk.Frame(self.row2)
         # self.cb.pack(side='right',fill='both', expand=True)
@@ -91,9 +82,6 @@ class Window(ttk.Frame):
         # self.combo.pack(side='left')
         # self.combo.current(0)
         # #self.combo.bind("<<ComboboxSelected>>", self.loadModel)
-        
-        emptyFrame = tk.Frame(self.header, height=20)
-        emptyFrame.pack(side='bottom')
 
         self.notebook = ttk.Notebook(self.master, width=1000, height=700)
         self.notebook.pack(side='top')#,fill='both'

@@ -28,6 +28,9 @@ class Window(tk.Frame):
         
         self.master = master
         
+        emptyFrame = tk.Frame(self.master, height=15)
+        emptyFrame.pack(side='top')
+        
         self.modelName = modelName
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
         self.treatments = json.loads(open(path / 'config'/ 'treatments.json','r').read())
@@ -76,7 +79,7 @@ class Window(tk.Frame):
                 frame = tk.Frame(row)
                 frame.configure(width=self.widths[j], bg='seagreen')
                 frame.pack(side='left')
-                e = tk.Entry(frame, disabledforeground='#fffffe', disabledbackground='seagreen', relief='flat', width=self.widths[j]+2)
+                e = tk.Entry(frame, disabledforeground='#fffffe', disabledbackground='seagreen', relief='flat', width=self.widths[j]+3, bd=1)
                 e.insert(tk.END, header)
                 e.configure(state='disabled')
                 e.pack(side='left')
@@ -87,28 +90,32 @@ class Window(tk.Frame):
                 e.configure(state='disabled')
                 e.pack(side='left')
             
-            if header in ['输入进水','专家反馈']:
-                #change color to indicate editable.
-                e.configure(disabledbackground='maroon')
+            # if header in ['输入进水','专家反馈']:
+            #     #change color to indicate editable.
+            #     e.configure(disabledbackground='maroon')
             
-        self.fixedVars = []
+        #self.fixedVars = []
         for i, feature in enumerate(self.features):
             row = tk.Frame(self.table)
             row.pack(side='top')
+            entryRow = []
             for j, width in enumerate(self.widths):
                 if j == 0:
                     frame = tk.Frame(row, width=width)
                     frame.pack(side='left')
                     var = tk.IntVar()
-                    self.fixedVars.append(var)
+                    #self.fixedVars.append(var)
                     checkBtn = ttk.Checkbutton(frame, variable=var, text=feature, width=width, onvalue=1, offvalue=0)
                     checkBtn.pack()
+                    entryRow.append(var)
                 else:
                     e = tk.Entry(row, disabledforeground='#fffffe', disabledbackground='#fffffe', relief='flat', width=width, state='disabled')
                     e.pack(side='left')
+                    entryRow.append(e)
                     
                     if self.headers[j] in ['输入进水','专家反馈']:
                         e.configure(state='normal', relief='sunken', bg='#fffffe')
+            self.entries.append(entryRow)
 
         
         ##########################################
@@ -190,7 +197,7 @@ class Window(tk.Frame):
         img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(img)  
         self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-        #self.canvas.focus_set()
+        self.canvas.focus_set()
     
     def loadModel(self, event):
         self.modelName = self.combo.get()

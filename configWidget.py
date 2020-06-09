@@ -31,9 +31,7 @@ class Window(tk.Frame):
         self.modelName = modelName
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
         self.treatments = json.loads(open(path / 'config'/ 'treatments.json','r').read())
-        
-        
-        
+
         if not modelCombobox:
             self.row = tk.Frame(self.master)
             self.row.pack(side='top')
