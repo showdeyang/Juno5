@@ -164,17 +164,20 @@ class Window(tk.Frame):
         #self.dataWidget.focus_set()
 
         pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        #pics = glob.glob('D:\\Restricted\\miscp\\*')
         pic = random.choice(pics)
         imgpath = pic
         img = Image.open(imgpath)
         ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
         #wpercent = (basewidth/float(img.size[0]))
         #hsize = int((float(img.size[1])*float(wpercent)))
-        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
+        print(imgWidth, imgHeight)
+        img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
     
         self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth) 
         self.img = ImageTk.PhotoImage(img)  
-        self.canvas.create_image(0,0,anchor='nw',image=self.img)  
+        self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
         self.canvas.pack(expand=True) 
         self.canvas.bind('<Right>',self.changePicByKey)
         
@@ -190,17 +193,20 @@ class Window(tk.Frame):
     #        maxheight = 700
         pics = glob.glob('D:\\Restricted\\miscp\\*')
         #print(len(pics))
-        #pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
         pic = random.choice(pics)
         imgpath = pic
         img = Image.open(imgpath)
         ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
         #wpercent = (basewidth/float(img.size[0]))
         #hsize = int((float(img.size[1])*float(wpercent)))
-        img = img.resize((int(img.size[0]*ratio),int(img.size[1]*ratio)), Image.ANTIALIAS)
+        imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
+        print(imgWidth, imgHeight)
+        img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
+    
         self.img = ImageTk.PhotoImage(img)  
-        self.canvas.create_image(0,0, anchor='nw', image=self.img)  
-        self.canvas.focus_set()
+        self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
+        #self.canvas.focus_set()
     ####################################################
     def loadModel(self, event=1):
         self.modelName = self.combo.get()
