@@ -51,13 +51,13 @@ class Window(tk.Frame):
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
         self.optFrame = tk.Frame(self.master)
-        #self.optFrame.pack(side='top',fill='y')
+        self.optFrame.pack(side='top',fill='y')
         
         self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
         self.optFrameLabel.pack(side='top')
         
         self.optTable = tk.Frame(self.optFrame)
-        self.optTable.pack(side='top', fill='y')
+        self.optTable.pack(side='top')
         
         if not statusLabel:
             self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)

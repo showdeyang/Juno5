@@ -14,6 +14,7 @@ import json
 #from tkintertable import TableCanvas, TableModel
 #from MyWidgets import ScrolledWindow
 import configWidget
+import trainingWidget
 
 path = Path('./')
 APP_TITLE = '工艺建模'
@@ -105,15 +106,15 @@ class Window(ttk.Frame):
         
         self.configFrame = tk.Frame(self.notebook)
         self.configFrame.pack(side='top')
-        
         self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status, modelCombobox=self.combo)
         self.configWidget.pack(side='top')
         self.notebook.add(self.configFrame, text='定义与配置')
         
-        
-        self.trainingWidget = tk.Frame(self.master)
+        self.trainingFrame = tk.Frame(self.notebook)
+        self.trainingFrame.pack(side='top')
+        self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status, modelCombobox=self.combo)
         self.trainingWidget.pack(side='top')
-        self.notebook.add(self.trainingWidget, text='数据建模')
+        self.notebook.add(self.trainingFrame, text='数据建模')
         
         self.applicationWidget = tk.Frame(self.master)
         self.applicationWidget.pack(side='top')
