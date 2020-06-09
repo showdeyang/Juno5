@@ -2,17 +2,17 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from pathlib import Path
-from PIL import ImageTk, Image
+#from PIL import ImageTk, Image
 #import win32api
-import glob
+#import glob
 import platform
 import sys, os
-import random
+#import random
 import json
 from functools import partial
 #from tksheet import Sheet
-from tkintertable import TableCanvas, TableModel
-from MyWidgets import ScrolledWindow
+#from tkintertable import TableCanvas, TableModel
+#from MyWidgets import ScrolledWindow
 
 path = Path('./')
 APP_TITLE = '最优运行条件配置'

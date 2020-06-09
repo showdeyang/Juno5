@@ -4,15 +4,15 @@ import tkinter.ttk as ttk
 from pathlib import Path
 from PIL import ImageTk, Image
 #import win32api
-import glob
+#import glob
 import platform
 import sys, os
-import random
+#import random
 import json
-from functools import partial
+#from functools import partial
 #from tksheet import Sheet
-from tkintertable import TableCanvas, TableModel
-from MyWidgets import ScrolledWindow
+#from tkintertable import TableCanvas, TableModel
+#from MyWidgets import ScrolledWindow
 import configWidget
 
 path = Path('./')
@@ -96,11 +96,7 @@ class Window(ttk.Frame):
 
         self.notebook = ttk.Notebook(self.master, width=1000, height=700)
         self.notebook.pack(side='top')#,fill='both'
-        
-#        self.configWidget = tk.Frame(self.master)
-#        self.configWidget.pack(side='top')
-        
-        
+
         self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
         self.statusBar.pack(side='bottom', fill='x')
         
@@ -301,66 +297,7 @@ class Window(ttk.Frame):
         self.win4Label.configure(text='指标' + featureName + '已被删除！\n须重启软件使指标变更生效！')
         self.win4option.configure(values=['请选择模型'] + self.features)
         self.win4option.current(0)
-        
-#    def loadModel(self,event=1):
-#        #print(self.modelName.get())
-#        self.features = json.loads(open(path / 'config'/'features.json','r').read())
-#        if self.combo.get() != '请选择模型':
-#            self.modelName = self.combo.get()
-#            print(self.modelName)
-#            for i in range(len(self.notebook.tabs())):
-#                self.notebook.tab(i,state='normal')
-#                
-#            
-#            self.status.configure(text='请选择进入模块')
-#            
-#            #load the depvars model if it already exists, else it is created on the spot:
-#            depvarFile = self.modelName + '.depVar.json'
-#            if os.path.isfile(path / 'models' / self.modelName / depvarFile):
-#                self.depVars = json.loads(open(path / 'models' / self.modelName / depvarFile,'r').read())
-#                self.saved = True
-#                self.savedBox.configure(bg='lime green')
-#            else:
-#                self.depVars = {feature: [feature] for feature in self.features}
-#                self.saved = False
-#                self.savedBox.configure(bg='red')
-#    
-#            #if opt model exists, load it
-#            optFile = self.modelName + '.opt.json'
-#            self.opt = []
-#            if os.path.isfile(path / 'models' / self.modelName / optFile):
-#                self.optDict = json.loads(open(path / 'models' / self.modelName / optFile,'r').read())
-#                
-#                for feature in self.optDict:
-#                    vec = [self.optDict[feature]['min'], self.optDict[feature]['max']]
-#                    self.opt.append(vec)
-#            
-#            #now populating the entries with models on display
-#            if self.opt:
-#                for i, row in enumerate(self.opt):
-#                    for j, cellValue in enumerate(row): 
-#                        self.optEntries[i][j].delete(0,tk.END)
-#                        self.optEntries[i][j].insert(tk.END, cellValue)
-#            else:
-#                #this is a new model instance
-#                #clears all previous model entries
-#                for row in self.optEntries:
-#                    for cell in row:
-#                        cell.delete(0,tk.END )
-#            
-#            for i, feature in enumerate(self.depVars):
-#                self.depVarLabels[i].configure(state='normal') #makes this entry editable
-#                self.depVarLabels[i].delete(0,tk.END) #clears whatever is in it.
-#                self.depVarLabels[i].insert(tk.END, (', ').join(self.depVars[feature]))
-#                self.depVarLabels[i].configure(state='disabled', disabledbackground='white', disabledforeground='black') #makes it readable only, and reapplies pallette.        
-#                    
-#        else:
-#            self.modelName = ''
-#            self.about.configure(text='Juno AI 污水处理工艺建模：'+self.modelName)
-#            for i in range(len(self.notebook.tabs())):
-#                self.notebook.tab(i,state='disabled')
-#            self.status.configure(text='请选择工艺！')
-#        return
+
     
     def clickAbout(self):
         ABOUT_TEXT = """\nJuno是一款污水处理仿真系统，由浙江巨能环境工程有限公司所属污水处理专家、人工智能专家和数学家共同打造。里面有大量的机器学习建模算法，从污水处理专家提供的数据中自动学习，采用了先进的强化学习、仿真技术和进化算法，来解决现实的污水处理问题。"""
