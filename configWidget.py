@@ -32,6 +32,8 @@ class Window(tk.Frame):
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
         self.treatments = json.loads(open(path / 'config'/ 'treatments.json','r').read())
         
+        
+        
         if not modelCombobox:
             self.row = tk.Frame(self.master)
             self.row.pack(side='top')
@@ -51,7 +53,7 @@ class Window(tk.Frame):
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
         self.optFrame = tk.Frame(self.master)
-        self.optFrame.pack(side='top',fill='y')
+        #self.optFrame.pack(side='top',fill='y')
         
         self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
         self.optFrameLabel.pack(side='top')

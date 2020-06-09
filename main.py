@@ -81,16 +81,16 @@ class Window(ttk.Frame):
         self.topBar = tk.Frame(self.row2, relief='flat', bd=0)
         self.topBar.pack(side='left', expand=True, fill='x')
         
-        self.cb = tk.Frame(self.row2)
-        self.cb.pack(side='right',fill='both', expand=True)
+        # self.cb = tk.Frame(self.row2)
+        # self.cb.pack(side='right',fill='both', expand=True)
         
-        self.combokey = tk.Label(self.cb, text='当前污水处理工艺：')
-        self.combokey.pack(side='left')
+        # self.combokey = tk.Label(self.cb, text='当前污水处理工艺：')
+        # self.combokey.pack(side='left')
         
-        self.combo = ttk.Combobox(self.cb, values=['请选择模型'] + self.treatments)
-        self.combo.pack(side='left')
-        self.combo.current(0)
-        #self.combo.bind("<<ComboboxSelected>>", self.loadModel)
+        # self.combo = ttk.Combobox(self.cb, values=['请选择模型'] + self.treatments)
+        # self.combo.pack(side='left')
+        # self.combo.current(0)
+        # #self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
         emptyFrame = tk.Frame(self.header, height=20)
         emptyFrame.pack(side='bottom')
@@ -106,13 +106,13 @@ class Window(ttk.Frame):
         
         self.configFrame = tk.Frame(self.notebook)
         self.configFrame.pack(side='top')
-        self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status, modelCombobox=self.combo)
+        self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.configWidget.pack(side='top')
         self.notebook.add(self.configFrame, text='定义与配置')
         
         self.trainingFrame = tk.Frame(self.notebook)
         self.trainingFrame.pack(side='top')
-        self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status, modelCombobox=self.combo)
+        self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.trainingWidget.pack(side='top')
         self.notebook.add(self.trainingFrame, text='数据建模')
         
