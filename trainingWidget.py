@@ -10,6 +10,9 @@ import sys, os
 import random
 import json
 from functools import partial
+import treatmentEffect as te
+import fewShotsLearning as fsl
+import wastewater as ww
 #from tksheet import Sheet
 #from tkintertable import TableCanvas, TableModel
 #from MyWidgets import ScrolledWindow
@@ -23,7 +26,11 @@ else:
     font = 'Lucida Grande'
 
 class Window(tk.Frame):
-    def __init__(self, master=None, modelName=None, statusLabel=None, modelCombobox=None):
+    def __init__(self, 
+                 master=None, 
+                 modelName=None, 
+                 statusLabel=None, 
+                 modelCombobox=None):
 
         tk.Frame.__init__(self, master)
         
@@ -46,7 +53,8 @@ class Window(tk.Frame):
             self.combokey = tk.Label(self.cb, text='当前污水处理工艺：')
             self.combokey.pack(side='left')
             
-            self.combo = ttk.Combobox(self.cb, values=['请选择模型'] + self.treatments)
+            self.combo = ttk.Combobox(self.cb, 
+                                      values = ['请选择模型'] + self.treatments)
             self.combo.pack(side='left')
             self.combo.current(0)
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
@@ -57,7 +65,9 @@ class Window(tk.Frame):
         self.body = tk.Frame(self.master)
         #self.body.pack(side='top')
         
-        self.titleLabel = ttk.Label(self.body, text='\n'+APP_TITLE+'\n', font=(font, 13))
+        self.titleLabel = ttk.Label(self.body, 
+                                    text='\n'+APP_TITLE+'\n', 
+                                    font=(font, 13))
         self.titleLabel.pack(side='top')
         
         ###########################
@@ -80,13 +90,23 @@ class Window(tk.Frame):
                 frame = tk.Frame(row)
                 frame.configure(width=self.widths[j])
                 frame.pack(side='left')
-                e = tk.Entry(frame, disabledforeground='#fffffe', disabledbackground='darkslategray', relief='flat', width=self.widths[j]+3, bd=1)
+                e = tk.Entry(frame, 
+                             disabledforeground='#fffffe', 
+                             disabledbackground='darkslategray', 
+                             relief='flat', 
+                             width=self.widths[j]+3,
+                             bd=1)
                 e.insert(tk.END, header)
                 e.configure(state='disabled')
                 e.pack(side='left')
             else:
 
-                e = tk.Entry(row, disabledforeground='#fffffe', disabledbackground='slategray', bd=1, relief='flat', width=self.widths[j], justify='center')
+                e = tk.Entry(row,
+                             disabledforeground='#fffffe', 
+                             disabledbackground='slategray', 
+                             bd=1, relief='flat', 
+                             width=self.widths[j], 
+                             justify='center')
                 e.insert(tk.END, header)
                 e.configure(state='disabled')
                 e.pack(side='left')
@@ -106,18 +126,35 @@ class Window(tk.Frame):
                     frame.pack(side='left')
                     var = tk.IntVar()
                     #self.fixedVars.append(var)
-                    checkBtn = ttk.Checkbutton(frame, variable=var, text=feature, width=width, onvalue=1, offvalue=0, cursor='hand2')
+                    checkBtn = ttk.Checkbutton(frame, 
+                                               variable=var, 
+                                               text=feature, width=width, 
+                                               onvalue=1, offvalue=0, 
+                                               cursor='hand2')
                     checkBtn.pack()
                     entryRow.append(var)
                 else:
-                    e = tk.Entry(row, disabledforeground='black', disabledbackground='mistyrose', relief='flat', width=width, cursor='arrow', justify='right')
+                    e = tk.Entry(row, 
+                                 disabledforeground='black', 
+                                 disabledbackground='mistyrose', 
+                                 relief='flat', 
+                                 width=width, 
+                                 cursor='arrow', 
+                                 justify='right')
                     e.pack(side='left')
-                    e.insert(tk.END,'haha')
+                    #e.insert(tk.END,'haha')
                     e.configure(state='disabled')
                     entryRow.append(e)
                     
                     if self.headers[j] in ['输入进水','专家反馈']:
-                        e.configure(state='normal', relief='flat', fg='darkslategray', bg='#fffffe', cursor='xterm')
+                        e.configure(state='normal', 
+                                    relief='flat', 
+                                    fg='darkslategray', 
+                                    bg='#fffffe', 
+                                    cursor='xterm')
+                    if self.headers[j] == '专家反馈':
+                        #bind keyup event to compute error
+                        e.bind('<KeyRelease>', self.calcError)
             self.entries.append(entryRow)
 
         
@@ -129,84 +166,65 @@ class Window(tk.Frame):
         self.buttons = tk.Frame(self.LEFT)
         self.buttons.pack(side='top', fill='x')
         
-        self.autoFillBtn = ttk.Button(self.buttons, text='随机填充', command=self.autoFill)
+        self.autoFillBtn = ttk.Button(self.buttons, 
+                                      text='随机填充', 
+                                      command=self.autoFill)
         self.autoFillBtn.pack(side='left')
         
-        self.clearBtn = ttk.Button(self.buttons, text='清空输入', command=self.clearEntries)
+        self.clearBtn = ttk.Button(self.buttons, 
+                                   text='清空输入', 
+                                   command=self.clearEntries)
         self.clearBtn.pack(side='left')
         
-        self.predictBtn = ttk.Button(self.buttons, text='预测出水', command=self.predict)
+        self.predictBtn = ttk.Button(self.buttons, 
+                                     text='预测出水', 
+                                     command=self.predict)
         self.predictBtn.pack(side='left')
         
-        self.trainBtn = ttk.Button(self.buttons, text='提交反馈', command=self.train)
+        self.trainBtn = ttk.Button(self.buttons, 
+                                   text='提交反馈', 
+                                   command=self.train)
         self.trainBtn.pack(side='left')
         
         if not statusLabel:
-            self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
+            self.statusBar = tk.Frame(master=self.master, 
+                                      relief='sunken', 
+                                      bd=1)
             self.statusBar.pack(side='bottom', fill='x')
     
-            self.status = tk.Label(master=self.statusBar, text='请选择模型')
+            self.status = tk.Label(master=self.statusBar, 
+                                   text='请选择模型')
             self.status.pack(side='left')
             
         else:
             self.status = statusLabel
     
         #########################################
-        #Training Graph Image
-        
-        self.RIGHT = tk.Frame(self.body)
+        #Right Panel
+        emptyFrame = tk.Frame(self.body, width=20)
+        emptyFrame.pack(side='left')
+        self.RIGHT = tk.Frame(self.body, width=500, height=500, bg='white' )
         self.RIGHT.pack(side='right', fill='both', expand=True)
-    ########################################################    
-    #     ##Easter Egg
-        self.maxwidth = 450
-        self.maxheight = 450
-        #self.dataWidget.bind('<Button-1>',self.changePicByKey)
-        #self.dataWidget.focus_set()
+        
+        
+        descBox = tk.Frame(self.RIGHT, bg='white')
+        descBox.pack(side='top', fill='x', expand=True)
+        self.roundLabel = tk.Label(self.RIGHT, text='训练回合：0', bg='white', font=('monospace'), justify='left')
+        self.roundLabel.pack(side='top', fill='x')
+        
+        self.errorLabel = tk.Label(self.RIGHT, text='预测误差：0%', bg='white', font=('monospace'))
+        self.errorLabel.pack(side='top')
 
-        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-        #pics = glob.glob('D:\\Restricted\\miscp\\*')
-        pic = random.choice(pics)
-        imgpath = pic
-        img = Image.open(imgpath)
-        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-        #wpercent = (basewidth/float(img.size[0]))
-        #hsize = int((float(img.size[1])*float(wpercent)))
-        imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
-        print(imgWidth, imgHeight)
-        img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
-    
-        self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth) 
-        self.img = ImageTk.PhotoImage(img)  
-        self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
+    ########################################################    
+        #Training Image Graph
+        self.maxwidth = 400
+        self.maxheight = 400
+        
+        self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth, bg='white') 
+        #self.img = ImageTk.PhotoImage(img)  
+        #self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
         self.canvas.pack(expand=True) 
-        self.canvas.bind('<Right>',self.changePicByKey)
         
-        button = ttk.Button(self.RIGHT, text='换一张福利图', command=self.changePic)
-        button.pack(side='bottom')
-        
-    def changePicByKey(self, event):
-        self.changePic()
-        #print('triggered')
-    
-    def changePic(self):
-    #        maxwidth = 700
-    #        maxheight = 700
-        pics = glob.glob('D:\\Restricted\\miscp\\*')
-        #print(len(pics))
-        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
-        pic = random.choice(pics)
-        imgpath = pic
-        img = Image.open(imgpath)
-        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
-        #wpercent = (basewidth/float(img.size[0]))
-        #hsize = int((float(img.size[1])*float(wpercent)))
-        imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
-        print(imgWidth, imgHeight)
-        img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
-    
-        self.img = ImageTk.PhotoImage(img)  
-        self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
-        #self.canvas.focus_set()
     ####################################################
     def loadModel(self, event=1):
         self.modelName = self.combo.get()
@@ -216,6 +234,34 @@ class Window(tk.Frame):
             self.body.pack_forget()
             return
         else:
+            #check if model has been trained. If yes, load the model's past training history (to show historical errors graph on the right panel). If no, load a default image.
+            if not os.path.isdir(path / 'models'/ self.modelName):
+                self.status.configure(text='错误：该模型的最优运行条件还未被定义！')
+                self.body.pack_forget()
+                return
+            
+            elif not glob.glob(str((path / 'models'/ self.modelName /'*.model' ).absolute())):
+                #model is not yet trained. Load up the opt file.
+                self.opt = te.loadOpt(self.modelName)
+                self.status.configure(text='最优运行条件已被加载。初次训练模型')
+                self.body.pack(side='top')
+                
+                
+                return
+            
+            else:
+                #model has been trained before. Load up the historical error graph.
+                #TO DO
+                self.opt = te.loadOpt(self.modelName)
+                self.status.configure(text='最优运行条件已被加载。模型曾经被训练过。')
+                self.body.pack(side='top')
+                
+                #load past training data. TD.
+                ...
+            
+            
+                
+                
             self.body.pack(side='top')
         
         
@@ -223,14 +269,81 @@ class Window(tk.Frame):
         ...
         
     def autoFill(self, event=11):
+        x = ww.wastewater()
+        x.generateFromOpt(self.opt)
+        print(x.water)
+        #insert generated water into table
+        for i, feature in enumerate(self.features):
+            value = x.water[feature]
+            cell = self.entries[i][1]
+            cellFixed = self.entries[i][0].get()
+            if not cellFixed:
+                cell.delete(0,tk.END)
+                cell.insert(tk.END,round(value,1))
+
         ...
     
     def clearEntries(self, event=1):
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][1]
+            cellFixed = self.entries[i][0]
+            cell.delete(0,tk.END)
+            cellFixed.set(0)
         ...
         
     def predict(self, event=1):
+        #read input as x, then y = predict(x, modelname)
+        x = {}
+        for i, feature in enumerate(self.features):
+            cellvalue = self.entries[i][1].get()
+            try:
+                x[feature] = float(cellvalue)
+            except ValueError:
+                self.status.configure(text='错误：' + feature + '输入必须是数字，不能为空')
+                return
+            
+            #resetting cellFixed to 0
+            cellFixed = self.entries[i][0]
+            cellFixed.set(0)
+        
+        Ypred = fsl.predict(x, self.modelName)
+        print('predicted',Ypred)
+        
+        #output value to table
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][2]
+            cell.configure(state='normal')
+            cell.delete(0, tk.END)
+            cell.insert(tk.END, round(Ypred[feature],1))
+            cell.configure(state='disabled')
+            
+            #############
+            #feedback column
+            cell = self.entries[i][3]
+            cell.delete(0,tk.END)
+            cell.insert(tk.END, round(Ypred[feature],1))
+            
         ...
     
+    def calcError(self, event=1):
+        yactual, ypred = [],[]
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][3]
+            yactual.append(float(cell.get()))
+            
+            cell = self.entries[i][2]
+            ypred.append(float(cell.get()))
+        error = fsl.computeError(ypred, yactual)
+        print('error', error)
+        
+        #output error back into table
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][4]
+            cell.configure(state='normal')
+            cell.delete(0,tk.END)
+            cell.insert(0,round(error[i],2))
+            cell.configure(state='disabled')
+        
     def train(self, event=1):
         ...
             

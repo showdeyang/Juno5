@@ -124,6 +124,56 @@ def testing(X,Y, modelname):
     
     return Ypred, errorByRows, errorByCols
 
+def predict(x,modelname):
+    if not os.path.isdir(path / 'models'/ modelname):
+        print('model', modelname, 'not yet created!')
+        return
+    depVarFile = modelname + '.depVar.json'
+    with open(path / 'models'/ modelname/ depVarFile,'r') as f:
+        depVars = json.loads(f.read())
+    
+    regrs = []
+    for feature in x.keys():
+        filename = feature + '.model'
+        file = path / 'models'/ modelname / filename
+        regr = joblib.load(file)
+        regrs.append(regr)
+        
+    features = list(x.keys())
+    trX = [dict2Array(x)]
+    trX = np.array(trX)
+    Ypreds = []
+    i = 0
+    for outputVar in features:
+        regr = regrs[i]
+        print(i,regr.coef_)
+        dependentVars = depVars[outputVar]
+        #outInd = features.index(outputVar)
+        inInds = list(map(lambda var: features.index(var), dependentVars))
+        X1 = list(map(list,list(zip(*list(map(lambda ind: trX[:,ind], inInds))))))
+        #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
+        Ypred = np.clip(regr.predict(X1),0,1e10)
+        Ypreds.append(Ypred)
+        i += 1
+    Ypred = np.array(Ypreds).T
+    Ypred[Ypred<1e-4] = 0
+    Ypred = array2Dict(Ypred[0], features)
+    return Ypred
+
+def computeError(ypred,yactual):
+    #ypred, yactual are two arrays
+    trY = np.array(yactual)
+    Ypred = np.array(ypred)
+    trY[trY<1e-4] = 0
+    Ypred[Ypred<1e-4] = 0
+    with np.errstate(divide='ignore', invalid='ignore'):
+        e = np.abs(Ypred - trY)/(trY)
+    e[np.isnan(e)] = 0
+    e[np.isinf(e)] = 0
+    errorByCols = e*100
+    return errorByCols
+
+
 if __name__=='__main__':
     t1 = time.time()
     modelname = '厌氧'   
