@@ -13,9 +13,8 @@ from functools import partial
 import treatmentEffect as te
 import fewShotsLearning as fsl
 import wastewater as ww
-#from tksheet import Sheet
-#from tkintertable import TableCanvas, TableModel
-#from MyWidgets import ScrolledWindow
+import numpy as np
+import matplotlib.pyplot as plt
 
 path = Path('./')
 APP_TITLE = '专家数据建模'
@@ -203,16 +202,16 @@ class Window(tk.Frame):
         #Right Panel
         emptyFrame = tk.Frame(self.body, width=20)
         emptyFrame.pack(side='left')
-        self.RIGHT = tk.Frame(self.body, width=500, height=500, bg='white' )
+        self.RIGHT = tk.Frame(self.body, width=500, height=500)
         self.RIGHT.pack(side='right', fill='both', expand=True)
         
         
-        descBox = tk.Frame(self.RIGHT, bg='white')
-        descBox.pack(side='top', fill='x', expand=True)
-        self.roundLabel = tk.Label(self.RIGHT, text='训练回合：0', bg='white', font=('monospace'), justify='left')
+        descBox = tk.Frame(self.RIGHT)
+        descBox.pack(side='top')
+        self.roundLabel = tk.Label(self.RIGHT, text='训练回合：0')
         self.roundLabel.pack(side='top', fill='x')
         
-        self.errorLabel = tk.Label(self.RIGHT, text='预测误差：0%', bg='white', font=('monospace'))
+        self.errorLabel = tk.Label(self.RIGHT, text='预测误差：0%')
         self.errorLabel.pack(side='top')
 
     ########################################################    
@@ -246,6 +245,19 @@ class Window(tk.Frame):
                 self.status.configure(text='最优运行条件已被加载。初次训练模型')
                 self.body.pack(side='top')
                 
+                imgpath = str((path / 'assets' / 'training1.png').absolute())
+                img = Image.open(imgpath)
+                ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+                #wpercent = (basewidth/float(img.size[0]))
+                #hsize = int((float(img.size[1])*float(wpercent)))
+                imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
+                #print(imgWidth, imgHeight)
+                img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
+            
+                self.img = ImageTk.PhotoImage(img)  
+                self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
+                
+                self.roundLabel.configure(text='训练回合：0')
                 
                 return
             
@@ -257,6 +269,36 @@ class Window(tk.Frame):
                 self.body.pack(side='top')
                 
                 #load past training data. TD.
+                dataFile =  self.modelName + '.data.json'
+                if os.path.isfile(path / 'models'/ self.modelName / dataFile):
+                    data = json.loads(open(path / 'models'/ self.modelName / dataFile, 'r').read())
+                else:
+                    data = {'X':[], 'Y':[], 'e':[]}
+                
+                e = data['e']
+                # plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
+                # plt.scatter([0,10],[0,50], s=0, marker='o', color='slategray')
+                # plt.plot(range(1,len(e)+1), e, color='slateblue')
+                # plt.title('\nPrediction Error Graph\n')
+                # plt.xlabel('\nIterations\n')
+                # plt.ylabel('\nError %\n')
+                # plt.savefig(path / 'models' / self.modelName  / 'training.png' , dpi=300, bbox_inches = "tight")
+                
+                imgpath = str((path / 'models' / self.modelName  / 'training.png').absolute())
+                img = Image.open(imgpath)
+                ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+                #wpercent = (basewidth/float(img.size[0]))
+                #hsize = int((float(img.size[1])*float(wpercent)))
+                imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
+                #print(imgWidth, imgHeight)
+                img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
+            
+                self.img = ImageTk.PhotoImage(img)  
+                self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
+                
+                self.roundLabel.configure(text='训练回合：' + str(len(e)))
+                
+                
                 ...
             
             
@@ -306,7 +348,12 @@ class Window(tk.Frame):
             cellFixed = self.entries[i][0]
             cellFixed.set(0)
         
-        Ypred = fsl.predict(x, self.modelName)
+        try:
+            Ypred = fsl.predict(x, self.modelName)
+            trained = True
+        except FileNotFoundError:
+            Ypred = {feature: np.abs(np.random.normal(x[feature], np.abs(x[feature]/2))) for feature in x}
+            trained = False
         print('predicted',Ypred)
         
         #output value to table
@@ -321,8 +368,11 @@ class Window(tk.Frame):
             #feedback column
             cell = self.entries[i][3]
             cell.delete(0,tk.END)
-            cell.insert(tk.END, round(Ypred[feature],1))
-            
+            if trained:
+                cell.insert(tk.END, round(Ypred[feature],1))
+            else:
+                cell.insert(tk.END, round(x[feature],1))
+        self.calcError()
         ...
     
     def calcError(self, event=1):
@@ -344,7 +394,65 @@ class Window(tk.Frame):
             cell.insert(0,round(error[i],2))
             cell.configure(state='disabled')
         
+        e = round(np.mean(error),2)
+        self.error = np.mean(error)
+        self.errorLabel.configure(text='训练误差：' + str(e) +'%')
+        
     def train(self, event=1):
+        x,y = {},{}
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][1]
+            x[feature] = float(cell.get())
+            
+            cell = self.entries[i][3]
+            y[feature] = float(cell.get())
+        
+        dataFile =  self.modelName + '.data.json'
+        if os.path.isfile(path / 'models'/ self.modelName / dataFile):
+            data = json.loads(open(path / 'models'/ self.modelName / dataFile, 'r').read())
+        else:
+            data = {'X':[], 'Y':[], 'e':[]}
+        
+        print('x',x)
+        print('y',y)
+        print('data',data)
+        print("error", self.error)
+        
+        data['X'].append(x)
+        data['Y'].append(y)
+        data['e'].append(self.error)
+        print('fdata', data)
+        
+        with open(path / 'models'/ self.modelName / dataFile, 'w') as f:
+            f.write(json.dumps(data))
+        
+        X,Y,e = data['X'], data['Y'], data['e']
+        
+        fsl.training(X,Y, self.modelName)
+        
+        #plot error graph
+        
+        plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
+        plt.scatter([0,10],[0,50], s=0, marker='o', color='slategray')
+        plt.plot(range(1,len(e)+1), e, color='slateblue')
+        plt.title('\nPrediction Error Graph\n')
+        plt.xlabel('\nIterations\n')
+        plt.ylabel('\nError %\n')
+        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight")
+        
+        imgpath = str((path / 'models' / self.modelName  / 'training.png').absolute())
+        img = Image.open(imgpath)
+        ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        imgWidth, imgHeight = int(img.size[0]*ratio), int(img.size[1]*ratio)
+        #print(imgWidth, imgHeight)
+        img = img.resize((imgWidth, imgHeight), Image.ANTIALIAS)
+    
+        self.img = ImageTk.PhotoImage(img)  
+        self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
+        
+        self.roundLabel.configure(text='训练回合：' + str(len(e)))
         ...
             
 if __name__ == "__main__":
