@@ -25,8 +25,12 @@ APP_ICON = (path / 'assets' / 'juneng.png').absolute()
 
 if platform.system() == 'Windows':
     font = '微软雅黑'
+    newline = ''
+    encoding = 'gbk'
 else:
     font = 'Lucida Grande'
+    newline = '\n'
+    encoding = 'utf-8'
     
 class Window(tk.Frame):
     def __init__(self, 
@@ -175,7 +179,7 @@ class Window(tk.Frame):
         #print(rows)
          
         file = self.modelName + timestamp + '.csv'
-        csvwriter = csv.writer(open(path / 'output' / file, 'w'), dialect='excel')
+        csvwriter = csv.writer(open(path / 'output' / file, 'w', encoding=encoding, newline=newline), dialect='excel')
         csvwriter.writerows(rows)
         self.status.configure(text='成功！已导出数据到 output 文件夹里！')
         ...
