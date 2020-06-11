@@ -2,7 +2,7 @@
 import numpy as np
 import json
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import time
 import wastewater as ww
 import treatmentEffect as te
@@ -15,7 +15,7 @@ import joblib
 #from sklearn.linear_model import MultiTaskLassoCV, MultiTaskLasso, LinearRegression, RidgeCV, Lasso, LassoCV, LassoLars, BayesianRidge, Ridge
 #from sklearn.preprocessing import StandardScaler
 import random
-import gplearn.genetic as gp
+#import gplearn.genetic as gp
 from pathlib import Path
 #from sklearn.preprocessing import PolynomialFeatures
 

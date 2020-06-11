@@ -15,6 +15,7 @@ import json
 #from MyWidgets import ScrolledWindow
 import configWidget
 import trainingWidget
+import dataWidget
 
 path = Path('./')
 APP_TITLE = '工艺建模'
@@ -96,21 +97,23 @@ class Window(ttk.Frame):
         self.configFrame.pack(side='top')
         self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.configWidget.pack(side='top')
-        self.notebook.add(self.configFrame, text='定义与配置')
+        self.notebook.add(self.configFrame, text='定义 / 配置')
         
         self.trainingFrame = tk.Frame(self.notebook)
         self.trainingFrame.pack(side='top')
         self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.trainingWidget.pack(side='top')
-        self.notebook.add(self.trainingFrame, text='数据建模')
+        self.notebook.add(self.trainingFrame, text='建模 / 预测')
         
-        self.applicationWidget = tk.Frame(self.master)
-        self.applicationWidget.pack(side='top')
-        self.notebook.add(self.applicationWidget, text='进出水预测（应用）')
+        # self.applicationWidget = tk.Frame(self.master)
+        # self.applicationWidget.pack(side='top')
+        # self.notebook.add(self.applicationWidget, text='进出水预测（应用）')
         
-        self.dataWidget = tk.Frame(self.master)
+        self.dataFrame = tk.Frame(self.notebook)
+        self.dataFrame.pack(side='top')
+        self.dataWidget = dataWidget.Window(self.dataFrame, statusLabel=self.status)
         self.dataWidget.pack(side='top')
-        self.notebook.add(self.dataWidget, text='历史数据')
+        self.notebook.add(self.dataFrame, text='历史数据')
         
 #        for i in range(len(self.notebook.tabs())):
 #            self.notebook.tab(i,state='disabled')
@@ -344,7 +347,7 @@ if __name__ == "__main__":
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1000x850')
+    root.geometry('1200x850')
     #show window
     root.mainloop()
 

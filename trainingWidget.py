@@ -6,10 +6,10 @@ from PIL import ImageTk, Image
 #import win32api
 import glob
 import platform
-import sys, os
-import random
+import os
+#import random
 import json
-from functools import partial
+#from functools import partial
 import treatmentEffect as te
 import fewShotsLearning as fsl
 import wastewater as ww
@@ -71,6 +71,9 @@ class Window(tk.Frame):
         
         ###########################
         #TABLE
+        emptyFrame = tk.Frame(self.body, width=20)
+        emptyFrame.pack(side='left')
+        
         self.LEFT = tk.Frame(self.body)
         self.LEFT.pack(side='left')
         
@@ -203,7 +206,7 @@ class Window(tk.Frame):
         emptyFrame = tk.Frame(self.body, width=20)
         emptyFrame.pack(side='left')
         self.RIGHT = tk.Frame(self.body, width=500, height=500)
-        self.RIGHT.pack(side='right', fill='both', expand=True)
+        self.RIGHT.pack(side='left', fill='both', expand=True)
         
         
         descBox = tk.Frame(self.RIGHT)
@@ -224,6 +227,11 @@ class Window(tk.Frame):
         #self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
         self.canvas.pack(expand=True) 
         
+        emptyFrame = tk.Frame(self.body, width=20)
+        emptyFrame.pack(side='left')
+        
+        emptyFrame = tk.Frame(self.LEFT, height=20)
+        emptyFrame.pack(side='bottom')
     ####################################################
     def loadModel(self, event=1):
         self.modelName = self.combo.get()
@@ -276,14 +284,6 @@ class Window(tk.Frame):
                     data = {'X':[], 'Y':[], 'e':[]}
                 
                 e = data['e']
-                # plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
-                # plt.scatter([0,10],[0,50], s=0, marker='o', color='slategray')
-                # plt.plot(range(1,len(e)+1), e, color='slateblue')
-                # plt.title('\nPrediction Error Graph\n')
-                # plt.xlabel('\nIterations\n')
-                # plt.ylabel('\nError %\n')
-                # plt.savefig(path / 'models' / self.modelName  / 'training.png' , dpi=300, bbox_inches = "tight")
-                
                 imgpath = str((path / 'models' / self.modelName  / 'training.png').absolute())
                 img = Image.open(imgpath)
                 ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
@@ -433,12 +433,13 @@ class Window(tk.Frame):
         #plot error graph
         
         plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
-        plt.scatter([0,10],[0,50], s=0, marker='o', color='slategray')
+        plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')
         plt.plot(range(1,len(e)+1), e, color='slateblue')
         plt.title('\nPrediction Error Graph\n')
         plt.xlabel('\nIterations\n')
         plt.ylabel('\nError %\n')
         plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight")
+        plt.clf()
         
         imgpath = str((path / 'models' / self.modelName  / 'training.png').absolute())
         img = Image.open(imgpath)

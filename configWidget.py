@@ -6,7 +6,7 @@ from pathlib import Path
 #import win32api
 #import glob
 import platform
-import sys, os
+import os
 #import random
 import json
 from functools import partial
@@ -165,13 +165,9 @@ class Window(tk.Frame):
                         v.append(float(entry.get()))
                     except ValueError:
                         self.status.configure(text='错误：输入栏'+feature+'中必须是数字')
-                        
-                        
                         return
-                    
                 else:
                     self.status.configure(text='错误：输入栏'+feature+'中不能为空')
-                    
                     
                     return
             #print(opt)
@@ -193,18 +189,10 @@ class Window(tk.Frame):
         print(depvar == self.depVars)
     
         if opt != self.opt or depvar != self.depVars:
-            
-            
             self.status.configure(text='输入正常，未保存')
-       
         else:
-            
-            
             self.status.configure(text='正常')
 
-        
-        
-        
     def saveEntries(self):
         self.checkUnsaved()
         optDict = {}
