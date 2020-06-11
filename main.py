@@ -6,7 +6,7 @@ from PIL import ImageTk, Image
 #import win32api
 #import glob
 import platform
-import sys, os
+import os
 #import random
 import json
 #from functools import partial
@@ -97,13 +97,13 @@ class Window(ttk.Frame):
         self.configFrame.pack(side='top')
         self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.configWidget.pack(side='top')
-        self.notebook.add(self.configFrame, text='定义 / 配置')
+        self.notebook.add(self.configFrame, text='模型配置 / 定义')
         
         self.trainingFrame = tk.Frame(self.notebook)
         self.trainingFrame.pack(side='top')
         self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.trainingWidget.pack(side='top')
-        self.notebook.add(self.trainingFrame, text='建模 / 预测')
+        self.notebook.add(self.trainingFrame, text='交互式建模 / 出水预测')
         
         # self.applicationWidget = tk.Frame(self.master)
         # self.applicationWidget.pack(side='top')
@@ -113,7 +113,7 @@ class Window(ttk.Frame):
         self.dataFrame.pack(side='top')
         self.dataWidget = dataWidget.Window(self.dataFrame, statusLabel=self.status)
         self.dataWidget.pack(side='top')
-        self.notebook.add(self.dataFrame, text='历史数据')
+        self.notebook.add(self.dataFrame, text='历史数据 / 批量建模')
         
 #        for i in range(len(self.notebook.tabs())):
 #            self.notebook.tab(i,state='disabled')
@@ -327,7 +327,7 @@ class Window(ttk.Frame):
         
 if __name__ == "__main__":
     root = tk.Tk()
-    #root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file=APP_ICON))
+    root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file=APP_ICON))
     #s = ttk.Style(root)
     #s.theme_use('clam')
     #s.configure('raised.TMenubutton', borderwidth=1, state='disabled')
@@ -336,7 +336,7 @@ if __name__ == "__main__":
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
     s = ttk.Style()
-    s.configure('TNotebook.Tab', width=15, padding=(5, 5))
+    s.configure('TNotebook.Tab', width=25, padding=(5, 5))
     s.configure('TNotebook', tabmargins = (0, 0, 0, 0))
 
     app = Window(root)

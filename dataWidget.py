@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter.scrolledtext import ScrolledText
 from tkinter import filedialog
 from pathlib import Path
 #from PIL import ImageTk, Image
@@ -8,14 +9,14 @@ from pathlib import Path
 import glob
 import platform
 import os
-import random
+#import random
 import json
-from functools import partial
-import treatmentEffect as te
+#from functools import partial
+#import treatmentEffect as te
 import fewShotsLearning as fsl
-import wastewater as ww
+#import wastewater as ww
 #import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import csv
 import time
 
@@ -83,17 +84,13 @@ class Window(tk.Frame):
         previewFrame = tk.Frame(self.body)
         previewFrame.pack(side='top')
         previewLabel = tk.Label(previewFrame, text='数据预览')
-        previewLabel.grid(row=0,column=0, sticky='nsew')
+        previewLabel.pack(side='top')
         #print(previewFrame)
-        self.previewPane = tk.Text(previewFrame, width=100, height=20, bg='#fffffe')
+
+        self.previewPane = ScrolledText(previewFrame, width=100, height=10, bg='#fffffe', font=(font,10))
+        self.previewPane.pack(side='top')
         self.previewPane.insert(tk.END,'正在加载数据...')
-        self.previewPane.configure(state='disabled')
-        self.previewPane.grid(row=1, column=0, sticky='nsew')
-        
-        vsb = ttk.Scrollbar(previewFrame, command=self.previewPane.yview)
-        vsb.grid(row=1, column=1, sticky='nsew')
-        
-        self.previewPane.configure(yscrollcommand=vsb.set)
+        self.previewPane.configure(state=tk.DISABLED)
         
         emptyFrame = tk.Frame(self.body, height=20)
         emptyFrame.pack(side='top')
@@ -104,7 +101,7 @@ class Window(tk.Frame):
         exportBtn = ttk.Button(buttons, text='导出CSV', command=self.exportData)
         exportBtn.pack(side='left')
         
-        importBtn = ttk.Button(buttons, text='导入CSV', command=self.importData)
+        importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
         importBtn.pack(side='left')
         
         emptyFrame = tk.Frame(self.body, height=20)
@@ -156,10 +153,10 @@ class Window(tk.Frame):
             
             preview = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
             self.data = preview
-            self.previewPane.configure(state='normal')
+            self.previewPane.configure(state=tk.NORMAL)
             self.previewPane.delete(1.0, tk.END)
-            self.previewPane.insert(tk.END, preview)
-            self.previewPane.configure(state='disabled')
+            self.previewPane.insert(tk.END, str(preview)[:2000] + '...')
+            self.previewPane.configure(state=tk.DISABLED)
         ...
         
     def exportData(self, event=1):
@@ -188,6 +185,121 @@ class Window(tk.Frame):
         #file dialog to accept file.
         filename =  filedialog.askopenfilename(initialdir = path,title = "选择导入表格文件",filetypes = (("CSV表格","*.csv"),("所有文件","*.*")))
         print(filename) 
+        try:
+            csvreader = csv.reader(open(filename, 'r', encoding='gbk', newline=newline).readlines(), dialect='excel')
+        except UnicodeDecodeError:
+            csvreader = csv.reader(open(filename, 'r', encoding='utf-8', newline=newline).readlines(), dialect='excel')
+        
+        #check data validity
+        rawdata = []
+        for row in csvreader:
+            rawdata.append(row)
+        
+        ls = []
+        for i, row in enumerate(rawdata):
+            if row:
+                if not row[-1]:
+                    row.remove(row[-1])
+                l = len(row)
+                ls.append(l)
+        for l in ls:
+            if l != ls[0]:
+                #some row contains extra columns!
+                self.status.configure(text='错误：某行的列数不同与其它的！数据格式必须满足每行列数相同。')
+                return
+            
+        correct = '进水'
+        for i, row in enumerate(rawdata):
+            if row:
+                if i > 0: #i=0 is header
+                    for j,v in enumerate(row):
+                        print('v',v)
+                        try:
+                            float(v)
+                        except ValueError:
+                            coord = str((i+1,j+1))
+                            
+                            
+                            if j != 1:
+                                self.status.configure(text='错误：在' + coord + '格是空格或存在非数字')
+                                return
+                            else:
+                                if v not in ['进水','出水']:
+                                    self.status.configure(text='错误：在' + coord + '格类型标注不对。应该为”出水“或”进水“。')
+                                    return
+                                else:
+                                    if v != correct:
+                                        self.status.configure(text='错误：在' + coord + '格类型标注不对。应该为”' + correct + '“。')
+                                        return
+                                    else:
+                                        if correct == '进水':
+                                            correct = '出水'
+                                        else:
+                                            correct = '进水'
+            else:
+                #empty row
+                ...
+        
+        
+        
+        data = []
+        for row in rawdata:
+            if row:
+                data.append(row)
+        
+        print(data)
+        features = data[0][2:]
+        #print(features)
+        X,Y,e = [],[],[]
+        
+        data = data[1:]
+
+
+        #print(data)
+        
+        for i, row in enumerate(data):
+            if row[1] == '进水':
+                j = row[0]
+                x = dict(zip(features, [float(v) for v in row[2:]]))
+                #print(j, '进水', x)
+                X.append(x)
+            elif row[1] == '出水':
+                j = row[0]
+                y = dict(zip(features, [float(v) for v in row[2:]]))
+                #print(j,'出水',y)
+                Y.append(y)
+        # print('X',X)
+        # print('Y',Y)
+        # print(len(X),len(Y))
+        
+        #iterative training to simulate error progression.
+        for i, x in enumerate(X):
+            self.status.configure(text='正在建模...(' + str(i+1) + '/' + str(len(X)) + ')')
+            fsl.training(X[:i+1], Y[:i+1], self.modelName)
+            try:
+                Ypred, errorByRows, errorByCols = fsl.testing([X[i+1]],[Y[i+1]], self.modelName)
+                err = errorByRows[0]
+                e.append(err)
+            except IndexError:
+                #last row reached
+                ...
+        #plot error graphs.
+        trainedData = {'X':X, 'Y':Y, "e":e}
+        
+        plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
+        plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')
+        plt.plot(range(1,len(e)+1), e, color='slateblue')
+        plt.title('\nPrediction Error Graph\n')
+        plt.xlabel('\nIterations\n')
+        plt.ylabel('\nError %\n')
+        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight")
+        plt.clf()
+        
+        #save data
+        dataFile =  self.modelName + '.data.json'
+        with open(path / 'models'/ self.modelName / dataFile, 'w') as f:
+            f.write(json.dumps(trainedData))
+        self.status.configure(text='导入成功！建模完成！')
         ...
         
 if __name__ == "__main__":

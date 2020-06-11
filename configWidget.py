@@ -153,6 +153,9 @@ class Window(tk.Frame):
         #add buttons here for optimality Frame
         btn = ttk.Button(self.optFrame,text='保存配置', command= self.saveEntries, cursor='hand2')
         btn.pack(side='top')
+        
+        emptyFrame = tk.Frame(self.optFrame,height=20)
+        emptyFrame.pack(side='top')
     
     def checkUnsaved(self, event=1):
         self.status.configure(text='')

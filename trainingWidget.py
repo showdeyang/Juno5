@@ -283,7 +283,10 @@ class Window(tk.Frame):
                 else:
                     data = {'X':[], 'Y':[], 'e':[]}
                 
-                e = data['e']
+                try:
+                    e = data['e']
+                except KeyError:
+                    e = []
                 imgpath = str((path / 'models' / self.modelName  / 'training.png').absolute())
                 img = Image.open(imgpath)
                 ratio = min(self.maxwidth/img.size[0], self.maxheight/img.size[1])
@@ -312,7 +315,11 @@ class Window(tk.Frame):
         
     def autoFill(self, event=11):
         x = ww.wastewater()
-        x.generateFromOpt(self.opt)
+        try:
+            x.generateFromOpt(self.opt)
+        except ValueError:
+            self.status.configure(text='模型配置格式不对，某指标的输入为空或非数字！')
+            return
         print(x.water)
         #insert generated water into table
         for i, feature in enumerate(self.features):

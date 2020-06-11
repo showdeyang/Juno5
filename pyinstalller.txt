@@ -1,0 +1,9 @@
+1. main.spec add this argument in Analysis:
+hiddenimports=['cython',  'sklearn',  'sklearn.utils._cython_blas' ]
+
+2. matplotlib backend uses qt! 
+2.1. pip show PyQt5, get the directory of package
+2.2. go into ...site-packages\PyQt5\Qt\plugins\, find the platforms folder.
+2.3. copy the entire platforms folder and paste it in the D:\code\Juno5\dist\main\PyQt5\Qt\plugins\
+
+3. copy the config, assets, output and models folders.
