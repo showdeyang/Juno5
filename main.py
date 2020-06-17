@@ -67,8 +67,8 @@ class Window(ttk.Frame):
         self.row1 = tk.Frame(self.header)
         self.row1.pack(side='top', fill='x', expand=True)
         
-        self.about = tk.Label(self.row1,text='\nJunoAI\n', font=(font, 15))
-        self.about.pack()
+        # self.about = tk.Label(self.row1,text='JunoAI', font=(font, 15))
+        # self.about.pack()
         
         # self.topBar = tk.Frame(self.row2, relief='flat', bd=0)
         # self.topBar.pack(side='left', expand=True, fill='x')
@@ -337,13 +337,13 @@ if __name__ == "__main__":
     # s.theme_use('vista')
     s = ttk.Style()
     s.configure('TNotebook.Tab', width=25, padding=(5, 5))
-    s.configure('TNotebook', tabmargins = (0, 0, 0, 0))
+    s.configure('TNotebook', tabmargins = (0, 20, 0, 0))
 
     app = Window(root)
-#    if platform.system() == 'Windows':
-#        root.wm_state("zoomed")
-#    else:
-#        root.wm_attributes('-zoomed',1)
+    if platform.system() == 'Windows':
+        root.wm_state("zoomed")
+    else:
+        root.wm_attributes('-zoomed',1)
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
