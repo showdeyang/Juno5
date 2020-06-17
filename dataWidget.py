@@ -81,8 +81,40 @@ class Window(tk.Frame):
                                     font=(font, 13))
         self.titleLabel.pack(side='top')
         
-        previewFrame = tk.Frame(self.body)
-        previewFrame.pack(side='top')
+        dataFrame = tk.Frame(self.body)
+        dataFrame.pack(side='top')
+        
+        listboxFrame = tk.Frame(dataFrame)
+        listboxFrame.pack(side='left')
+        
+        label = tk.Label(listboxFrame, text='数据记录')
+        label.pack(side='top')
+        listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0) 
+        listbox.pack(side = tk.LEFT, fill = tk.BOTH) 
+
+        scrollbar = tk.Scrollbar(listboxFrame) 
+          
+        # Adding Scrollbar to the right 
+        # side of root window 
+        scrollbar.pack(side = tk.RIGHT, fill = tk.BOTH) 
+          
+        # Insert elements into the listbox 
+        for treatment in self.treatments: 
+            listbox.insert(tk.END, treatment) 
+              
+        # Attaching Listbox to Scrollbar 
+        # Since we need to have a vertical  
+        # scroll we use yscrollcommand 
+        listbox.config(yscrollcommand = scrollbar.set) 
+          
+        # setting scrollbar command parameter  
+        # to listbox.yview method its yview because 
+        # we need to have a vertical view 
+        scrollbar.config(command = listbox.yview) 
+                
+        
+        previewFrame = tk.Frame(dataFrame)
+        previewFrame.pack(side='left')
         previewLabel = tk.Label(previewFrame, text='数据预览')
         previewLabel.pack(side='top')
         #print(previewFrame)

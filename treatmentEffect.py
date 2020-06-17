@@ -209,7 +209,7 @@ def optTreat(x, modelname, treObj):
 def treat(x, modelname):
     assert isinstance(x, ww.wastewater), 'input is not a wastewater object.'
     model = loadModel(modelname)
-    opt, treObj = parseModel(model)
+    #opt, treObj = parseModel(model)
     y = optTreat(x, modelname, treObj)
     efficacy, optDict, optFlag = optimality(x, opt)
     #print('opt',opt)
