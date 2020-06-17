@@ -111,8 +111,8 @@ def loadSyntax():
     return funcD, parameters, operators, effects
 
 def loadModel(modelName):
-    modelFile = modelName + '.json'
-    model = json.loads(open(path / 'models'/ modelFile,'r').read())
+    modelFile = modelName + '.data.json'
+    model = json.loads(open(path / 'models'/ modelName / modelFile,'r').read())
 
     return model
 
