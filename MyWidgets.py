@@ -171,6 +171,8 @@ class ScrolledWindow(tk.Frame):
     def _unbound_to_mousewheel(self, event):
         print('left region!')
         self.canv.unbind_all("<MouseWheel>") 
+        self.canv.unbind_all("<Button-4>") 
+        self.canv.unbind_all("<Button-5>") 
 
     def _on_mousewheel(self, event):
         print("on mousewheel!")
