@@ -12,7 +12,7 @@ import json
 from functools import partial
 #from tksheet import Sheet
 #from tkintertable import TableCanvas, TableModel
-#from MyWidgets import ScrolledWindow
+from MyWidgets import ScrolledWindow
 
 path = Path('./')
 APP_TITLE = '最优运行条件配置'
@@ -56,11 +56,16 @@ class Window(tk.Frame):
         self.optFrame = tk.Frame(self.master)
         #self.optFrame.pack(side='top',fill='y')
         
-        self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
+        self.optFrameLabel = ttk.Label(self.master, text='\n最优运行条件配置\n', font=(font, 13))
         self.optFrameLabel.pack(side='top')
         
-        self.optTable = tk.Frame(self.optFrame)
-        self.optTable.pack(side='top')
+        self.optTableSW = ScrolledWindow(self.optFrame)
+        self.optTableSW.pack(side='top')
+        
+        
+        self.optTable = tk.Frame(self.optTableSW.scrollwindow)
+        self.optTable.pack() #side='top'
+        
         
         if not statusLabel:
             self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
@@ -151,10 +156,10 @@ class Window(tk.Frame):
         
         ##################################
         #add buttons here for optimality Frame
-        btn = ttk.Button(self.optFrame,text='保存配置', command= self.saveEntries, cursor='hand2')
+        btn = ttk.Button(self.master,text='保存配置', command=self.saveEntries, cursor='hand2')
         btn.pack(side='top')
         
-        emptyFrame = tk.Frame(self.optFrame,height=20)
+        emptyFrame = tk.Frame(self.master,height=20)
         emptyFrame.pack(side='top')
     
     def checkUnsaved(self, event=1):
@@ -299,6 +304,7 @@ class Window(tk.Frame):
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
         if self.combo.get() != '请选择模型':
             self.optFrame.pack(side='top')
+            #self.optTable.focus_set()
             self.modelName = self.combo.get()
             print(self.modelName)
             #self.modelLabel.configure(text=self.modelName)

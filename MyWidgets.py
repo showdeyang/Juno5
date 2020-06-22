@@ -22,7 +22,7 @@ class MultiListbox(tk.Frame):
         frame = tk.Frame(self); frame.pack(side=tk.LEFT, fill=tk.Y)
         #tk.Label(frame, borderwidth=1, relief=tk.RAISED).pack(fill=tk.X)
         self.sb = tk.Scrollbar(frame, orient=tk.VERTICAL, command=self._scroll)
-        self.sb.pack(expand=tk.YES, fill=tk.Y)
+        self.sb.pack(expand=tk.YES , fill=tk.Y)
         self.lists[0]['yscrollcommand']= self.sb.set
         # for l in self.lists:
         #     l.bind('<MouseWheel>', self._scroll)
@@ -152,8 +152,8 @@ class ScrolledWindow(tk.Frame):
                          yscrollcommand = self.yscrlbr.set,
                          scrollregion = (0, 0, 100, 100))
 
-        self.yscrlbr.lift(self.scrollwindow)        
-        self.xscrlbr.lift(self.scrollwindow)
+        #self.yscrlbr.lift(self.scrollwindow)        
+        #self.xscrlbr.lift(self.scrollwindow)
         self.scrollwindow.bind('<Configure>', self._configure_window)  
         self.scrollwindow.bind('<Enter>', self._bound_to_mousewheel)
         self.scrollwindow.bind('<Leave>', self._unbound_to_mousewheel)
@@ -161,13 +161,29 @@ class ScrolledWindow(tk.Frame):
         return
 
     def _bound_to_mousewheel(self, event):
-        self.canv.bind_all("<MouseWheel>", self._on_mousewheel)   
+        print('entered region!')
+        
+        self.canv.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.canv.bind_all("<Button-4>", self._on_mousewheel)
+        self.canv.bind_all("<Button-5>", self._on_mousewheel)
+        print('binded mousewheel!')
 
     def _unbound_to_mousewheel(self, event):
+        print('left region!')
         self.canv.unbind_all("<MouseWheel>") 
 
     def _on_mousewheel(self, event):
-        self.canv.yview_scroll(int(-1*(event.delta/120)), "units")  
+        print("on mousewheel!")
+        #print(event.delta)
+        #self.canv.yview_scroll(int(-1*(event.delta/120)), "units")  
+        
+        # respond to Linux or Windows wheel event
+        if event.num == 5 or event.delta == -120:
+            units = +1
+        if event.num == 4 or event.delta == 120:
+            units = -1
+        
+        self.canv.yview_scroll(units, "units")  
 
     def _configure_window(self, event):
         # update the scrollbars to match the size of the inner frame
@@ -179,6 +195,8 @@ class ScrolledWindow(tk.Frame):
         if self.scrollwindow.winfo_reqheight() != self.canv.winfo_height():
             # update the canvas's width to fit the inner frame
             self.canv.config(height = self.scrollwindow.winfo_reqheight())
+
+
 
 if __name__ == '__main__':
     root = tk.Tk()

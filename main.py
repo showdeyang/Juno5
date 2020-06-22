@@ -84,7 +84,7 @@ class Window(ttk.Frame):
         # self.combo.current(0)
         # #self.combo.bind("<<ComboboxSelected>>", self.loadModel)
 
-        self.notebook = ttk.Notebook(self.master) #, width=1000, height=700
+        self.notebook = ttk.Notebook(self.master, width=1000, height=400) #, width=1000, height=700
         self.notebook.pack(side='top')#,fill='both'
 
         self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
