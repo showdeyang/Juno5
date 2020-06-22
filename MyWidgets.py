@@ -114,13 +114,13 @@ class ScrolledWindow(tk.Frame):
     """
 
 
-    def __init__(self, parent, canv_w = 400, canv_h = 400, *args, **kwargs):
+    def __init__(self, parent, canv_h = 300, *args, **kwargs):
         """Parent = master of scrolled window
         canv_w - width of canvas
         canv_h - height of canvas
 
        """
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(parent, height=canv_h, *args, **kwargs)
 
         self.parent = parent
 

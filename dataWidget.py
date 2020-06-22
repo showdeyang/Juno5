@@ -87,30 +87,30 @@ class Window(tk.Frame):
         listboxFrame = tk.Frame(dataFrame)
         listboxFrame.pack(side='left')
         
-        label = tk.Label(listboxFrame, text='数据记录')
+        label = tk.Label(listboxFrame, text='数据记录id')
         label.pack(side='top')
-        listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0) 
-        listbox.pack(side = tk.LEFT, fill = tk.BOTH) 
-
+        self.listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0) 
+        self.listbox.pack(side = tk.LEFT, fill = tk.BOTH) 
+        self.listbox.bind('<<ListboxSelect>>', self.selectData)
         scrollbar = tk.Scrollbar(listboxFrame) 
           
         # Adding Scrollbar to the right 
         # side of root window 
         scrollbar.pack(side = tk.RIGHT, fill = tk.BOTH) 
-          
+         
+        
         # Insert elements into the listbox 
-        for treatment in self.treatments: 
-            listbox.insert(tk.END, treatment) 
+        
               
         # Attaching Listbox to Scrollbar 
         # Since we need to have a vertical  
         # scroll we use yscrollcommand 
-        listbox.config(yscrollcommand = scrollbar.set) 
+        self.listbox.config(yscrollcommand = scrollbar.set) 
           
         # setting scrollbar command parameter  
         # to listbox.yview method its yview because 
         # we need to have a vertical view 
-        scrollbar.config(command = listbox.yview) 
+        scrollbar.config(command = self.listbox.yview) 
                 
         
         previewFrame = tk.Frame(dataFrame)
@@ -183,14 +183,27 @@ class Window(tk.Frame):
             self.body.pack(side='top')
             self.status.configure(text='正常')
             
-            preview = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
-            self.data = preview
+            data = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
+            self.data = data
+            
+            X = data['X']
+            for i, x in enumerate(X): 
+                self.listbox.insert(tk.END, i+1) 
+            
             self.previewPane.configure(state=tk.NORMAL)
             self.previewPane.delete(1.0, tk.END)
-            self.previewPane.insert(tk.END, str(preview)[:2000] + '...')
+            self.previewPane.insert(tk.END, str(data)[:2000] + '...')
             self.previewPane.configure(state=tk.DISABLED)
         ...
-        
+    
+    def selectData(self, event):
+        print(self.listbox.curselection())
+        ind = self.listbox.curselection()[0]
+        self.previewPane.configure(state=tk.NORMAL)
+        self.previewPane.delete(1.0, tk.END)
+        self.previewPane.insert(tk.END, str(self.data['Y'][ind])[:2000] + '...')
+        self.previewPane.configure(state=tk.DISABLED)
+    
     def exportData(self, event=1):
         timestamp = ('').join(str(time.time()).split('.'))
         
