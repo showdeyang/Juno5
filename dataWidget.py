@@ -253,6 +253,10 @@ class Window(tk.Frame):
         
         data = self.data
         X,Y = data['X'][ind], data['Y'][ind]
+        try:
+            ypred, err = data['Ypred'][ind], data['err'][ind]
+        except KeyError:
+            ypred, err = None, None
         #X,Y are dicts
         for i, feature in enumerate(X):
             cell = self.entries[i][1]
@@ -267,7 +271,37 @@ class Window(tk.Frame):
             cell.delete(0,tk.END)
             cell.insert(tk.END, Y[feature])
             #cell.configure(state='disabled')
-            
+        
+        if ypred:
+            for i, feature in enumerate(ypred):
+                cell = self.entries[i][2]
+                cell.configure(state='normal')
+                cell.delete(0,tk.END)
+                cell.insert(tk.END, ypred[feature])
+                cell.configure(state='disabled')
+        else:
+            #clear entry
+            for i, feature in enumerate(self.features):
+                cell = self.entries[i][2]
+                cell.configure(state='normal')
+                cell.delete(0,tk.END)
+                cell.configure(state='disabled')
+          
+        if err:
+            for i, feature in enumerate(err):
+                cell = self.entries[i][4]
+                cell.configure(state='normal')
+                cell.delete(0,tk.END)
+                cell.insert(tk.END, err[feature])
+                cell.configure(state='disabled')
+        
+        else:
+            #clear entry
+            for i, feature in enumerate(self.features):
+                cell = self.entries[i][2]
+                cell.configure(state='normal')
+                cell.delete(0,tk.END)
+                cell.configure(state='disabled')
         
             
     
