@@ -96,8 +96,7 @@ class Window(tk.Frame):
                              disabledforeground='#fffffe', 
                              disabledbackground='darkslategray', 
                              relief='flat', 
-                             width=self.widths[j]+3,
-                             bd=1)
+                             width=self.widths[j]+3)
                 e.insert(tk.END, header)
                 e.configure(state='disabled')
                 e.pack(side='left')
@@ -106,7 +105,7 @@ class Window(tk.Frame):
                 e = tk.Entry(row,
                              disabledforeground='#fffffe', 
                              disabledbackground='slategray', 
-                             bd=1, relief='flat', 
+                             relief='flat', 
                              width=self.widths[j], 
                              justify='center')
                 e.insert(tk.END, header)
@@ -442,10 +441,11 @@ class Window(tk.Frame):
         
         try:
             data['Ypred'].append(ypred)
-            data['E'].append(err)
+            data['err'].append(err)
+            print("triggered1")
         except KeyError:
             #encounter new data format
-            
+            print("triggered2")
             n = len(data['X']) - 1
             data['Ypred'] = [{}]*n
             data['err'] = [{}]*n

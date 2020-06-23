@@ -11,7 +11,7 @@ import platform
 import os
 #import random
 import json
-#from functools import partial
+from functools import partial
 #import treatmentEffect as te
 import fewShotsLearning as fsl
 #import wastewater as ww
@@ -163,10 +163,12 @@ class Window(tk.Frame):
                 label.configure(disabledbackground='darkslategray')
             elif header in ['进水','专家反馈']:
                 label.configure(disabledbackground='lightslategray')
-        
+        self.rows = []
         self.entries = []
         for i, feature in enumerate(self.features):
             row = tk.Frame(previewTable)
+            if i %2 == 0:
+                row.configure(bd=1)
             row.pack(side='top')
             rowEntries = []
             for j, header in enumerate(headers):
@@ -180,7 +182,9 @@ class Window(tk.Frame):
                 if header in ['污水指标','机器预测出水','误差（%）']:
                     label.configure(state='disabled', cursor='arrow')
                 rowEntries.append(label)
+                label.bind('<Button-1>', partial(self.selectCell, i, j))
             self.entries.append(rowEntries)
+            self.rows.append(row)
         
         if not statusLabel:
             self.statusBar = tk.Frame(master=self.master, 
@@ -196,6 +200,13 @@ class Window(tk.Frame):
             self.status = statusLabel
         
         ###########################
+    def selectCell(self, i, j, event=1):
+        print(i,j)
+        #reset all row highlight border to 0
+        # for row in self.rows:
+        #     row.configure(bd=0)
+        # row = self.rows[i]
+        # row.configure(bd=1)
         
     def loadModel(self, event=1):
         
@@ -298,7 +309,7 @@ class Window(tk.Frame):
         else:
             #clear entry
             for i, feature in enumerate(self.features):
-                cell = self.entries[i][2]
+                cell = self.entries[i][4]
                 cell.configure(state='normal')
                 cell.delete(0,tk.END)
                 cell.configure(state='disabled')

@@ -53,7 +53,7 @@ class Window(tk.Frame):
     #        maxheight = 700
         pics = glob.glob('D:\\Restricted\\miscp\\*')
         #print(len(pics))
-        pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
+        #pics = glob.glob(str(path / 'assets' / 'res'/ '*'))
         pic = random.choice(pics)
         imgpath = pic
         img = Image.open(imgpath)
