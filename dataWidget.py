@@ -19,6 +19,7 @@ import fewShotsLearning as fsl
 import matplotlib.pyplot as plt
 import csv
 import time
+import fewShotsLearning as fsl
 
 path = Path('./')
 APP_TITLE = '历史数据'
@@ -80,6 +81,20 @@ class Window(tk.Frame):
                                     text='\n'+APP_TITLE+'\n', 
                                     font=(font, 13))
         self.titleLabel.pack(side='top')
+
+        buttons = tk.Frame(self.body)
+        buttons.pack(side='top')
+        
+        exportBtn = ttk.Button(buttons, text='导出CSV', command=self.exportData)
+        exportBtn.pack(side='left')
+        
+        importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
+        importBtn.pack(side='left')
+        
+        emptyFrame = tk.Frame(self.body, height=20)
+        emptyFrame.pack(side='top')
+        
+        ################################
         
         dataFrame = tk.Frame(self.body)
         dataFrame.pack(side='top')
@@ -89,7 +104,7 @@ class Window(tk.Frame):
         
         label = tk.Label(listboxFrame, text='数据记录id')
         label.pack(side='top')
-        self.listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0) 
+        self.listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0, height=30) 
         self.listbox.pack(side = tk.LEFT, fill = tk.BOTH) 
         self.listbox.bind('<<ListboxSelect>>', self.selectData)
         scrollbar = tk.Scrollbar(listboxFrame) 
@@ -111,33 +126,61 @@ class Window(tk.Frame):
         # to listbox.yview method its yview because 
         # we need to have a vertical view 
         scrollbar.config(command = self.listbox.yview) 
-                
+         
+        
         
         previewFrame = tk.Frame(dataFrame)
         previewFrame.pack(side='left')
         previewLabel = tk.Label(previewFrame, text='数据预览')
         previewLabel.pack(side='top')
-        #print(previewFrame)
+        
 
-        self.previewPane = ScrolledText(previewFrame, width=100, height=10, bg='#fffffe', font=(font,10))
+        self.previewPane = ScrolledText(previewFrame, width=100, height=4, bg='#fffffe', font=(font,10))
         self.previewPane.pack(side='top')
         self.previewPane.insert(tk.END,'正在加载数据...')
         self.previewPane.configure(state=tk.DISABLED)
         
-        emptyFrame = tk.Frame(self.body, height=20)
-        emptyFrame.pack(side='top')
+        previewTableFrame = tk.Frame(previewFrame)
+        previewTableFrame.pack(side='top')
         
-        buttons = tk.Frame(self.body)
-        buttons.pack(side='top')
+        previewTableLabel = tk.Label(previewTableFrame, text='\n详细数据\n')
+        previewTableLabel.pack(side='top')
         
-        exportBtn = ttk.Button(buttons, text='导出CSV', command=self.exportData)
-        exportBtn.pack(side='left')
+        previewTable = tk.Frame(previewTableFrame)
+        previewTable.pack(side='top')
         
-        importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
-        importBtn.pack(side='left')
+        headers = ['污水指标','进水','机器预测出水','专家反馈','误差（%）']
         
-        emptyFrame = tk.Frame(self.body, height=20)
-        emptyFrame.pack(side='top')
+        #constructing header
+        headerRow = tk.Frame(previewTable)
+        headerRow.pack(side='top')
+        for j, header in enumerate(headers):
+            label = tk.Entry(headerRow, disabledforeground='#fffffe', disabledbackground='slategray')
+            label.pack(side='left')
+            label.insert(tk.END, header)
+            label.configure(state='disabled')
+            if j==0:
+                label.configure(disabledbackground='darkslategray')
+            elif header in ['进水','专家反馈']:
+                label.configure(disabledbackground='lightslategray')
+        
+        self.entries = []
+        for i, feature in enumerate(self.features):
+            row = tk.Frame(previewTable)
+            row.pack(side='top')
+            rowEntries = []
+            for j, header in enumerate(headers):
+                label = tk.Entry(row, disabledforeground='black', disabledbackground='mistyrose', relief='flat', justify='right', cursor='xterm', background='#fffffe', foreground='black')
+                label.pack(side='left')
+                
+                if j==0:
+                    label.insert(tk.END, feature)
+                    label.configure(justify='left')
+                    
+                if header in ['污水指标','机器预测出水','误差（%）']:
+                    label.configure(state='disabled', cursor='arrow')
+                rowEntries.append(label)
+            self.entries.append(rowEntries)
         
         if not statusLabel:
             self.statusBar = tk.Frame(master=self.master, 
@@ -194,6 +237,10 @@ class Window(tk.Frame):
             self.previewPane.delete(1.0, tk.END)
             self.previewPane.insert(tk.END, str(data)[:2000] + '...')
             self.previewPane.configure(state=tk.DISABLED)
+            
+            ###################################
+            #fill up data table
+
         ...
     
     def selectData(self, event):
@@ -203,6 +250,26 @@ class Window(tk.Frame):
         self.previewPane.delete(1.0, tk.END)
         self.previewPane.insert(tk.END, str(self.data['Y'][ind])[:2000] + '...')
         self.previewPane.configure(state=tk.DISABLED)
+        
+        data = self.data
+        X,Y = data['X'][ind], data['Y'][ind]
+        #X,Y are dicts
+        for i, feature in enumerate(X):
+            cell = self.entries[i][1]
+            #cell.configure(state='normal')
+            cell.delete(0,tk.END)
+            cell.insert(tk.END, X[feature])
+            #cell.configure(state='disabled')
+        
+        for i, feature in enumerate(Y):
+            cell = self.entries[i][3]
+            #cell.configure(state='normal')
+            cell.delete(0,tk.END)
+            cell.insert(tk.END, Y[feature])
+            #cell.configure(state='disabled')
+            
+        
+            
     
     def exportData(self, event=1):
         timestamp = ('').join(str(time.time()).split('.'))
@@ -358,6 +425,6 @@ if __name__ == "__main__":
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1000x850')
+    root.geometry('1200x850')
     #show window
     root.mainloop()
