@@ -300,7 +300,12 @@ class Window(tk.Frame):
                 self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
                 
                 self.roundLabel.configure(text='训练回合：' + str(len(e)))
+                try:
+                    error = e[-1]
+                except IndexError:
+                    error = 0
                 
+                self.errorLabel.configure(text='训练误差：' + str(round(error,2)) + '%')
                 
                 ...
             
@@ -406,19 +411,25 @@ class Window(tk.Frame):
         self.errorLabel.configure(text='训练误差：' + str(e) +'%')
         
     def train(self, event=1):
-        x,y = {},{}
+        x,y, ypred, err = {},{},{},{}
         for i, feature in enumerate(self.features):
             cell = self.entries[i][1]
             x[feature] = float(cell.get())
             
+            cell = self.entries[i][2]
+            ypred[feature] = float(cell.get())
+            
             cell = self.entries[i][3]
             y[feature] = float(cell.get())
+        
+            cell = self.entries[i][4]
+            err[feature] = float(cell.get())  
         
         dataFile =  self.modelName + '.data.json'
         if os.path.isfile(path / 'models'/ self.modelName / dataFile):
             data = json.loads(open(path / 'models'/ self.modelName / dataFile, 'r').read())
         else:
-            data = {'X':[], 'Y':[], 'e':[]}
+            data = {'X':[], 'Y':[], 'Ypred': [], 'E': [], 'e':[]}
         
         print('x',x)
         print('y',y)
@@ -428,6 +439,26 @@ class Window(tk.Frame):
         data['X'].append(x)
         data['Y'].append(y)
         data['e'].append(self.error)
+        
+        try:
+            data['Ypred'].append(ypred)
+            data['E'].append(err)
+        except KeyError:
+            #encounter new data format
+            
+            n = len(data['X']) - 1
+            data['Ypred'] = [{}]*n
+            data['err'] = [{}]*n
+            
+            data['Ypred'].append(ypred)
+            data['err'].append(err)
+            print(data)
+            print(len(data['X']))
+            print(len(data['Y']))
+            print(len(data['e']))
+            print(len(data['Ypred']))
+            print(len(data['err']))
+            
         print('fdata', data)
         
         with open(path / 'models'/ self.modelName / dataFile, 'w') as f:
@@ -462,6 +493,7 @@ class Window(tk.Frame):
         
         self.roundLabel.configure(text='训练回合：' + str(len(e)))
         ...
+        self.status.configure(text='提交成功！')
             
 if __name__ == "__main__":
     root = tk.Tk()
