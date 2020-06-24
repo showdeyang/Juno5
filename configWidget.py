@@ -56,8 +56,8 @@ class Window(tk.Frame):
         self.optFrame = tk.Frame(self.master)
         #self.optFrame.pack(side='top',fill='y')
         
-        self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
-        self.optFrameLabel.pack(side='top')
+        # self.optFrameLabel = ttk.Label(self.optFrame, text='\n最优运行条件配置\n', font=(font, 13))
+        # self.optFrameLabel.pack(side='top')
         
         ##################################
         #add buttons here for optimality Frame
@@ -96,7 +96,7 @@ class Window(tk.Frame):
         self.opt = []
         
         
-        headers = ['污水指标','最低值*','最高值*','依赖指标']
+        headers = ['污水指标','最低进水值*','最高进水值*','出水指标所依赖的进水指标']
         width = 10
         for i in range(len(self.features)+1):
             if i == 0:
@@ -300,7 +300,7 @@ class Window(tk.Frame):
         emptyFrame = tk.Frame(editbox, height=10)
         emptyFrame.pack(side='top')
         
-        savebtn = ttk.Button(editbox, text='保存', command=genDepVars)
+        savebtn = ttk.Button(editbox, text='确定', command=genDepVars)
         savebtn.pack(side='top')
         
         emptyFrame = tk.Frame(editbox, height=10)

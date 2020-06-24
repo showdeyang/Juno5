@@ -77,10 +77,10 @@ class Window(tk.Frame):
         self.body = tk.Frame(self.master)
         #self.body.pack(side='top')
         
-        self.titleLabel = ttk.Label(self.body, 
-                                    text='\n'+APP_TITLE+'\n', 
-                                    font=(font, 13))
-        self.titleLabel.pack(side='top')
+        # self.titleLabel = ttk.Label(self.body, 
+        #                             text='\n'+APP_TITLE+'\n', 
+        #                             font=(font, 13))
+        # self.titleLabel.pack(side='top')
 
         buttons = tk.Frame(self.body)
         buttons.pack(side='top')
@@ -91,13 +91,16 @@ class Window(tk.Frame):
         importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
         importBtn.pack(side='left')
         
+        saveBtn = ttk.Button(buttons, text='保存变更', command=self.saveData)
+        saveBtn.pack(side='left')
+        
         emptyFrame = tk.Frame(self.body, height=20)
         emptyFrame.pack(side='top')
         
         ################################
         
         dataFrame = tk.Frame(self.body)
-        dataFrame.pack(side='top')
+        dataFrame.pack(side='top', fill='x', expand=True)
         
         listboxFrame = tk.Frame(dataFrame)
         listboxFrame.pack(side='left')
@@ -129,22 +132,22 @@ class Window(tk.Frame):
          
         
         
-        previewFrame = tk.Frame(dataFrame)
-        previewFrame.pack(side='left')
-        previewLabel = tk.Label(previewFrame, text='数据预览')
-        previewLabel.pack(side='top')
+        self.previewFrame = tk.Frame(dataFrame)
+        #previewFrame.pack(side='left')
+        # previewLabel = tk.Label(previewFrame, text='数据预览')
+        # previewLabel.pack(side='top')
         
 
-        self.previewPane = ScrolledText(previewFrame, width=100, height=4, bg='#fffffe', font=(font,10))
-        self.previewPane.pack(side='top')
-        self.previewPane.insert(tk.END,'正在加载数据...')
-        self.previewPane.configure(state=tk.DISABLED)
+        # self.previewPane = ScrolledText(previewFrame, width=50, height=4, bg='#fffffe', font=(font,10))
+        # self.previewPane.pack(side='top')
+        # self.previewPane.insert(tk.END,'正在加载数据...')
+        # self.previewPane.configure(state=tk.DISABLED)
         
-        previewTableFrame = tk.Frame(previewFrame)
+        previewTableFrame = tk.Frame(self.previewFrame)
         previewTableFrame.pack(side='top')
         
-        previewTableLabel = tk.Label(previewTableFrame, text='\n详细数据\n')
-        previewTableLabel.pack(side='top')
+        self.previewTableLabel = tk.Label(previewTableFrame, text='\n详细数据：id \n')
+        self.previewTableLabel.pack(side='top')
         
         previewTable = tk.Frame(previewTableFrame)
         previewTable.pack(side='top')
@@ -155,29 +158,30 @@ class Window(tk.Frame):
         headerRow = tk.Frame(previewTable)
         headerRow.pack(side='top')
         for j, header in enumerate(headers):
-            label = tk.Entry(headerRow, disabledforeground='#fffffe', disabledbackground='slategray')
+            label = tk.Entry(headerRow, disabledforeground='#fffffe', disabledbackground='slategray', width=15)
             label.pack(side='left')
             label.insert(tk.END, header)
             label.configure(state='disabled')
             if j==0:
-                label.configure(disabledbackground='darkslategray')
+                label.configure(disabledbackground='darkslategray', width=20)
             elif header in ['进水','专家反馈']:
                 label.configure(disabledbackground='lightslategray')
+                
         self.rows = []
         self.entries = []
         for i, feature in enumerate(self.features):
             row = tk.Frame(previewTable)
-            if i %2 == 0:
+            if i % 2 == 0:
                 row.configure(bd=1)
             row.pack(side='top')
             rowEntries = []
             for j, header in enumerate(headers):
-                label = tk.Entry(row, disabledforeground='black', disabledbackground='mistyrose', relief='flat', justify='right', cursor='xterm', background='#fffffe', foreground='black')
+                label = tk.Entry(row, disabledforeground='black', disabledbackground='mistyrose', relief='flat', justify='right', cursor='xterm', background='#fffffe', foreground='black', width=15)
                 label.pack(side='left')
                 
                 if j==0:
                     label.insert(tk.END, feature)
-                    label.configure(justify='left')
+                    label.configure(justify='left', width=20)
                     
                 if header in ['污水指标','机器预测出水','误差（%）']:
                     label.configure(state='disabled', cursor='arrow')
@@ -234,7 +238,7 @@ class Window(tk.Frame):
                 self.body.pack_forget()
                 return
             
-            self.body.pack(side='top')
+            self.body.pack(side='top',fill='x')
             self.status.configure(text='正常')
             
             data = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
@@ -244,10 +248,10 @@ class Window(tk.Frame):
             for i, x in enumerate(X): 
                 self.listbox.insert(tk.END, i+1) 
             
-            self.previewPane.configure(state=tk.NORMAL)
-            self.previewPane.delete(1.0, tk.END)
-            self.previewPane.insert(tk.END, str(data)[:2000] + '...')
-            self.previewPane.configure(state=tk.DISABLED)
+            # self.previewPane.configure(state=tk.NORMAL)
+            # self.previewPane.delete(1.0, tk.END)
+            # self.previewPane.insert(tk.END, str(data)[:2000] + '...')
+            # self.previewPane.configure(state=tk.DISABLED)
             
             ###################################
             #fill up data table
@@ -255,12 +259,18 @@ class Window(tk.Frame):
         ...
     
     def selectData(self, event):
+        
         print(self.listbox.curselection())
-        ind = self.listbox.curselection()[0]
-        self.previewPane.configure(state=tk.NORMAL)
-        self.previewPane.delete(1.0, tk.END)
-        self.previewPane.insert(tk.END, str(self.data['Y'][ind])[:2000] + '...')
-        self.previewPane.configure(state=tk.DISABLED)
+        try:
+            ind = self.listbox.curselection()[0]
+            self.previewFrame.pack(side='left', expand=True)
+            self.previewTableLabel.configure(text='\n详细数据：id ' + str(ind+1) + '\n')
+        except IndexError:
+            return
+        # self.previewPane.configure(state=tk.NORMAL)
+        # self.previewPane.delete(1.0, tk.END)
+        # self.previewPane.insert(tk.END, str(self.data['Y'][ind])[:2000] + '...')
+        # self.previewPane.configure(state=tk.DISABLED)
         
         data = self.data
         X,Y = data['X'][ind], data['Y'][ind]
@@ -314,7 +324,8 @@ class Window(tk.Frame):
                 cell.delete(0,tk.END)
                 cell.configure(state='disabled')
         
-            
+    def saveData(self, event=1):
+        ...
     
     def exportData(self, event=1):
         timestamp = ('').join(str(time.time()).split('.'))

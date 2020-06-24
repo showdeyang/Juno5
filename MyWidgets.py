@@ -201,11 +201,27 @@ class ScrolledWindow(tk.Frame):
 
 
 if __name__ == '__main__':
+    # root = tk.Tk()
+    # tk.Label(root, text='MultiListbox').pack()
+    # mlb = MultiListbox(root, (('Subject', 40), ('Sender', 20), ('Date', 10)))
+    # for i in range(1000):
+    #   mlb.insert(tk.END, 
+    #       ('Important Message: %d' % i, 'John Doe', '10/10/%04d' % (1900+i)))
+    # mlb.pack(expand=tk.YES,fill=tk.BOTH)
+    # root.mainloop(  )
+    import tkinter as tk
+    from tkinter import ttk
+    
     root = tk.Tk()
-    tk.Label(root, text='MultiListbox').pack()
-    mlb = MultiListbox(root, (('Subject', 40), ('Sender', 20), ('Date', 10)))
-    for i in range(1000):
-      mlb.insert(tk.END, 
-          ('Important Message: %d' % i, 'John Doe', '10/10/%04d' % (1900+i)))
-    mlb.pack(expand=tk.YES,fill=tk.BOTH)
-    root.mainloop(  )
+    
+    style = ttk.Style(root)
+    style.configure('lefttab.TNotebook', tabposition='wn')
+    
+    notebook = ttk.Notebook(root, style='lefttab.TNotebook')
+    f1 = tk.Frame(notebook, bg='red', width=200, height=200)
+    f2 = tk.Frame(notebook, bg='blue', width=200, height=200)
+    notebook.add(f1, text='Frame 1')
+    notebook.add(f2, text='Frame 2')
+    notebook.pack()
+    
+    root.mainloop()

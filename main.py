@@ -53,7 +53,7 @@ class Window(ttk.Frame):
         #ABOUT MENU
         aboutMenu = tk.Menu(menu, tearoff=False, relief='raised')
         aboutMenu.add_command(label="Juno简介", command=self.clickAbout)
-        aboutMenu.add_command(label="帮助")
+        aboutMenu.add_command(label="帮助", state='disabled')
         menu.add_cascade(label="关于", menu=aboutMenu)
         
         ##############################################
@@ -84,8 +84,8 @@ class Window(ttk.Frame):
         # self.combo.current(0)
         # #self.combo.bind("<<ComboboxSelected>>", self.loadModel)
 
-        self.notebook = ttk.Notebook(self.master) #, width=1000, height=700
-        self.notebook.pack(side='top')#,fill='both'
+        self.notebook = ttk.Notebook(self.master, style='lefttab.TNotebook') #, width=1000, height=700
+        self.notebook.pack(anchor='nw', fill='both', expand=True)#,fill='both'
 
         self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
         self.statusBar.pack(side='bottom', fill='x')
@@ -97,13 +97,13 @@ class Window(ttk.Frame):
         self.configFrame.pack(side='top')
         self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.configWidget.pack(side='top')
-        self.notebook.add(self.configFrame, text='模型配置 / 定义')
+        self.notebook.add(self.configFrame, text=' 模型配置：最优运行条件')
         
         self.trainingFrame = tk.Frame(self.notebook)
         self.trainingFrame.pack(side='top')
         self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.trainingWidget.pack(side='top')
-        self.notebook.add(self.trainingFrame, text='交互式建模 / 出水预测')
+        self.notebook.add(self.trainingFrame, text=' 交互式建模 / 出水预测')
         
         # self.applicationWidget = tk.Frame(self.master)
         # self.applicationWidget.pack(side='top')
@@ -113,7 +113,7 @@ class Window(ttk.Frame):
         self.dataFrame.pack(side='top')
         self.dataWidget = dataWidget.Window(self.dataFrame, statusLabel=self.status)
         self.dataWidget.pack(side='top')
-        self.notebook.add(self.dataFrame, text='历史数据 / 批量建模')
+        self.notebook.add(self.dataFrame, text=' 历史数据 / 批量建模')
         
 #        for i in range(len(self.notebook.tabs())):
 #            self.notebook.tab(i,state='disabled')
@@ -336,18 +336,19 @@ if __name__ == "__main__":
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
     s = ttk.Style()
-    s.configure('TNotebook.Tab', width=25, padding=(5, 5))
-    s.configure('TNotebook', tabmargins = (0, 20, 0, 0))
-
+    s.configure('TNotebook', borderwidth=0, background='black')
+    s.configure('TNotebook.Tab', width=20, padding=(0, 15), background='black', foreground='#fffffe', borderwidth=0)
+    s.configure('lefttab.TNotebook', tabmargins = (0, 0, 0, 0), tabposition='wn', borderwidth=0)
+    s.map("TNotebook.Tab", background=[("selected", '#353f4f')], foreground=[("selected", '#8bc34a')]);
     app = Window(root)
-    if platform.system() == 'Windows':
-        root.wm_state("zoomed")
-    else:
-        root.wm_attributes('-zoomed',1)
+    # if platform.system() == 'Windows':
+    #     root.wm_state("zoomed")
+    # else:
+    #     root.wm_attributes('-zoomed',1)
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1200x850')
+    root.geometry('1300x700')
     #show window
     root.mainloop()
 

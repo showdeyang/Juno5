@@ -64,10 +64,10 @@ class Window(tk.Frame):
         self.body = tk.Frame(self.master)
         #self.body.pack(side='top')
         
-        self.titleLabel = ttk.Label(self.body, 
-                                    text='\n'+APP_TITLE+'\n', 
-                                    font=(font, 13))
-        self.titleLabel.pack(side='top')
+        # self.titleLabel = ttk.Label(self.body, 
+        #                             text='\n'+APP_TITLE+'\n', 
+        #                             font=(font, 13))
+        # self.titleLabel.pack(side='top')
         
         ###########################
         #TABLE
@@ -506,6 +506,6 @@ if __name__ == "__main__":
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1000x850')
+    root.geometry('1200x850')
     #show window
     root.mainloop()
