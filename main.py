@@ -97,13 +97,13 @@ class Window(ttk.Frame):
         self.configFrame.pack(side='top')
         self.configWidget = configWidget.Window(self.configFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.configWidget.pack(side='top')
-        self.notebook.add(self.configFrame, text=' 模型配置：最优运行条件')
+        self.notebook.add(self.configFrame, text='模型配置：最优运行条件')
         
         self.trainingFrame = tk.Frame(self.notebook)
         self.trainingFrame.pack(side='top')
         self.trainingWidget = trainingWidget.Window(self.trainingFrame, statusLabel=self.status) #, modelCombobox=self.combo
         self.trainingWidget.pack(side='top')
-        self.notebook.add(self.trainingFrame, text=' 交互式建模 / 出水预测')
+        self.notebook.add(self.trainingFrame, text='交互式建模 / 出水预测')
         
         # self.applicationWidget = tk.Frame(self.master)
         # self.applicationWidget.pack(side='top')
@@ -113,7 +113,7 @@ class Window(ttk.Frame):
         self.dataFrame.pack(side='top')
         self.dataWidget = dataWidget.Window(self.dataFrame, statusLabel=self.status)
         self.dataWidget.pack(side='top')
-        self.notebook.add(self.dataFrame, text=' 历史数据 / 批量建模')
+        self.notebook.add(self.dataFrame, text='历史数据 / 批量建模')
         
 #        for i in range(len(self.notebook.tabs())):
 #            self.notebook.tab(i,state='disabled')
@@ -335,17 +335,43 @@ if __name__ == "__main__":
     #s=ttk.Style()
     #s.configure('W.TButton',font=("Microsoft YaHei",10))
     # s.theme_use('vista')
-    s = ttk.Style()
-    s.configure('TNotebook', borderwidth=0, background='black')
-    s.configure('TNotebook.Tab', width=20, padding=(0, 15), background='black', foreground='#fffffe', borderwidth=0)
-    s.configure('lefttab.TNotebook', tabmargins = (0, 0, 0, 0), tabposition='wn', borderwidth=0)
-    s.map("TNotebook.Tab", background=[("selected", '#353f4f')], foreground=[("selected", '#8bc34a')]);
+    # s = ttk.Style()
+   
+    # s.configure('TNotebook', borderwidth=0) #, background='black'
+    # s.configure('TNotebook.Tab', width=20, padding=(0, 15), background='#fffffe', foreground='black', borderwidth=0)
+    # s.configure('lefttab.TNotebook', tabmargins = (0,0, -5, 0), tabposition='wn', borderwidth=0)
+    # s.map("TNotebook.Tab", background=[("selected", 'black')], foreground=[("selected", '#8bc34a')]);
+    # COLOR_1 = 'black'
+    # COLOR_2 = 'white'
+    # COLOR_3 = 'red'
+    # COLOR_4 = '#2E2E2E'
+    # COLOR_5 = '#8A4B08'
+    # COLOR_6 = '#DF7401'
+    
+    noteStyler =  ttk.Style()
+    noteStyler.element_create('Plain.Notebook.tab', "from", 'winnative')
+    # Redefine the TNotebook Tab layout to use the new element
+    noteStyler.layout("TNotebook.Tab",
+        [('Plain.Notebook.tab', {'children':
+            [('Notebook.padding', {'side': 'top', 'children':
+                [('Notebook.focus', {'side': 'top', 'children':
+                    [('Notebook.label', {'side': 'top', 'sticky': ''})],
+                'sticky': 'nswe'})],
+            'sticky': 'nswe'})],
+        'sticky': 'nswe'})])
+
+    s =  noteStyler
+    s.configure('TNotebook') #, background='mistyrose'
+    s.configure('TNotebook.Tab', width=25, padding=(10, 15), borderwidth=0) #, background='mistyrose', foreground='#fff'
+    s.configure('lefttab.TNotebook', tabmargins = (0, 3, -1, 0), tabposition='wn', borderwidth=0)
+    s.map("TNotebook.Tab", background=[("selected", 'slategray')], foreground=[("selected", '#fffffe')]); ##8bc34a
+    
     app = Window(root)
     # if platform.system() == 'Windows':
     #     root.wm_state("zoomed")
     # else:
     #     root.wm_attributes('-zoomed',1)
-    root.tk_setPalette(background='#F2F1F0', foreground='#32322D')
+    root.tk_setPalette(background='#F2F1F0', foreground='#32322D') #
     #set window title
     root.wm_title(APP_TITLE)
     root.geometry('1300x700')

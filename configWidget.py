@@ -53,6 +53,9 @@ class Window(tk.Frame):
             self.combo = modelCombobox
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
+        emptyFrame = tk.Frame(self.master, height=15)
+        emptyFrame.pack(side='top')
+        
         self.optFrame = tk.Frame(self.master)
         #self.optFrame.pack(side='top',fill='y')
         

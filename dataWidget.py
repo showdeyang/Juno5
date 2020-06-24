@@ -74,6 +74,9 @@ class Window(tk.Frame):
             self.combo = modelCombobox
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
+        emptyFrame = tk.Frame(self.master, height=15)
+        emptyFrame.pack(side='top')
+        
         self.body = tk.Frame(self.master)
         #self.body.pack(side='top')
         
@@ -81,7 +84,8 @@ class Window(tk.Frame):
         #                             text='\n'+APP_TITLE+'\n', 
         #                             font=(font, 13))
         # self.titleLabel.pack(side='top')
-
+        
+        
         buttons = tk.Frame(self.body)
         buttons.pack(side='top')
         
@@ -100,14 +104,17 @@ class Window(tk.Frame):
         ################################
         
         dataFrame = tk.Frame(self.body)
-        dataFrame.pack(side='top', fill='x', expand=True)
+        dataFrame.pack(side='top',  fill='both')
+        
+        emptyFrame = tk.Frame(dataFrame, width=20)
+        emptyFrame.pack(side='left')
         
         listboxFrame = tk.Frame(dataFrame)
         listboxFrame.pack(side='left')
         
         label = tk.Label(listboxFrame, text='数据记录id')
         label.pack(side='top')
-        self.listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0, height=30) 
+        self.listbox = tk.Listbox(listboxFrame, bg='#fffffe', relief='flat', selectbackground='slategray', selectforeground='#fffffe', highlightthickness=0, height=15) 
         self.listbox.pack(side = tk.LEFT, fill = tk.BOTH) 
         self.listbox.bind('<<ListboxSelect>>', self.selectData)
         scrollbar = tk.Scrollbar(listboxFrame) 
@@ -133,6 +140,7 @@ class Window(tk.Frame):
         
         
         self.previewFrame = tk.Frame(dataFrame)
+        self.previewFrame.pack(side='left', fill='x',  expand=True)
         #previewFrame.pack(side='left')
         # previewLabel = tk.Label(previewFrame, text='数据预览')
         # previewLabel.pack(side='top')
@@ -263,7 +271,7 @@ class Window(tk.Frame):
         print(self.listbox.curselection())
         try:
             ind = self.listbox.curselection()[0]
-            self.previewFrame.pack(side='left', expand=True)
+            
             self.previewTableLabel.configure(text='\n详细数据：id ' + str(ind+1) + '\n')
         except IndexError:
             return
