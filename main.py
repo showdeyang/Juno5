@@ -18,7 +18,7 @@ import trainingWidget
 import dataWidget
 
 path = Path('./')
-APP_TITLE = '工艺建模'
+APP_TITLE = 'JunoAI'
 APP_ICON = (path / 'assets' / 'juneng.png').absolute()
 if platform.system() == 'Windows':
     font = '微软雅黑'
@@ -362,7 +362,7 @@ if __name__ == "__main__":
 
     s =  noteStyler
     s.configure('TNotebook') #, background='mistyrose'
-    s.configure('TNotebook.Tab', width=25, padding=(10, 15), borderwidth=0) #, background='mistyrose', foreground='#fff'
+    s.configure('TNotebook.Tab', width=25, padding=(10, 15), borderwidth=0, font=(font,11)) #, background='mistyrose', foreground='#fff'
     s.configure('lefttab.TNotebook', tabmargins = (0, 3, -1, 0), tabposition='wn', borderwidth=0)
     s.map("TNotebook.Tab", background=[("selected", 'slategray')], foreground=[("selected", '#fffffe')]); ##8bc34a
     
