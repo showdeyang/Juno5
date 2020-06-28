@@ -317,8 +317,10 @@ class Window(tk.Frame):
             self.data = data
             
             X = data['X']
-            for i, x in enumerate(X): 
-                self.listbox.insert(tk.END, i+1) 
+            self.listbox.delete(0,tk.END)
+            
+            for i, x in enumerate(X):
+                self.listbox.insert(tk.END, i+1)  #i+1
             
             # self.previewPane.configure(state=tk.NORMAL)
             # self.previewPane.delete(1.0, tk.END)
