@@ -22,8 +22,10 @@ APP_TITLE = 'JunoAI'
 APP_ICON = (path / 'assets' / 'juneng.png').absolute()
 if platform.system() == 'Windows':
     font = '微软雅黑'
+    theme = 'winnative'
 else:
     font = 'Lucida Grande'
+    theme = None
 
 def alwaysActiveStyle(widget):
     widget.config(state="active")
@@ -349,8 +351,9 @@ if __name__ == "__main__":
     # COLOR_6 = '#DF7401'
     
     noteStyler =  ttk.Style()
-    noteStyler.element_create('Plain.Notebook.tab', "from", 'winnative')
-    # Redefine the TNotebook Tab layout to use the new element
+    if theme:
+        noteStyler.element_create('Plain.Notebook.tab', "from", 'winnative')
+        
     noteStyler.layout("TNotebook.Tab",
         [('Plain.Notebook.tab', {'children':
             [('Notebook.padding', {'side': 'top', 'children':

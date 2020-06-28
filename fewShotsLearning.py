@@ -167,7 +167,7 @@ def computeError(ypred,yactual):
     trY[trY<1e-4] = 0
     Ypred[Ypred<1e-4] = 0
     with np.errstate(divide='ignore', invalid='ignore'):
-        e = np.abs(Ypred - trY)/(trY)
+        e = np.abs(Ypred - trY)/(trY+0.001)
     e[np.isnan(e)] = 0
     e[np.isinf(e)] = 0
     errorByCols = e*100

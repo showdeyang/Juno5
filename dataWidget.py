@@ -95,8 +95,8 @@ class Window(tk.Frame):
         importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
         importBtn.pack(side='left')
         
-        saveBtn = ttk.Button(buttons, text='保存变更', command=self.saveData)
-        saveBtn.pack(side='left')
+        self.saveBtn = ttk.Button(buttons, text='保存变更', command=self.saveData)
+        #self.saveBtn.pack(side='left')
         
         emptyFrame = tk.Frame(self.body, height=20)
         emptyFrame.pack(side='top')
@@ -186,6 +186,7 @@ class Window(tk.Frame):
             for j, header in enumerate(headers):
                 label = tk.Entry(row, disabledforeground='black', disabledbackground='mistyrose', relief='flat', justify='right', cursor='xterm', background='#fffffe', foreground='black', width=15)
                 label.pack(side='left')
+                label.bind('<KeyRelease>', self.checkUnsaved)
                 
                 if j==0:
                     label.insert(tk.END, feature)
@@ -220,6 +221,69 @@ class Window(tk.Frame):
         # row = self.rows[i]
         # row.configure(bd=1)
         
+    def calcError(self, event=1):
+        yactual, ypred = [],[]
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][3]
+            yactual.append(float(cell.get()))
+            
+            cell = self.entries[i][2]
+            try:
+                ypred.append(float(cell.get()))
+            except ValueError:
+                return
+        error = fsl.computeError(ypred, yactual)
+        print('error', error)
+        
+        #output error back into table
+        for i, feature in enumerate(self.features):
+            cell = self.entries[i][4]
+            cell.configure(state='normal')
+            cell.delete(0,tk.END)
+            cell.insert(0,round(error[i],2))
+            cell.configure(state='disabled')
+            
+    def checkUnsaved(self, event=1):
+        #check if self.entries are different from saved values;
+        #print(self.data)
+        self.status.configure(text='正常')
+        print(self.id)
+        x,ypred,y,err = self.data['X'][self.id], self.data['Ypred'][self.id], self.data['Y'][self.id], self.data['err'][self.id]
+        # print('X',x)
+        # print('Y',y)
+        # print('ypred',ypred) 
+        # print('err',err)
+        entries = []
+        for row in self.entries:
+            for i, entry in enumerate(row):
+                if i in [1,3]:
+                    try:
+                        float(entry.get())
+                    except ValueError:
+                        self.status.configure(text='错误：输入栏中' + str(entry.get()) + '不是数字！')
+                        return
+        #print(entries)
+        
+        self.calcError()
+        
+        data = []
+        for feature in self.features:
+            row = [feature, x[feature], ypred[feature] if ypred else '', y[feature], err[feature] if ypred else '']
+            row = [str(e) if i > 0 else e for i,e in enumerate(row)]
+            data.append(row)
+        print('data',data)
+        entries = [[e.get() for e in row] for row in self.entries]
+        print('entries',entries)
+        unsaved = entries != data
+        print('unsaved?', unsaved)
+        if unsaved:
+            self.status.configure(text='输入正常，数据已变更，未保存。')
+            self.saveBtn.pack(side='left')
+        else:
+            self.status.configure(text='正常')
+            self.saveBtn.pack_forget()
+        ...
+    
     def loadModel(self, event=1):
         
         self.modelName = self.combo.get()
@@ -260,9 +324,6 @@ class Window(tk.Frame):
             # self.previewPane.delete(1.0, tk.END)
             # self.previewPane.insert(tk.END, str(data)[:2000] + '...')
             # self.previewPane.configure(state=tk.DISABLED)
-            
-            ###################################
-            #fill up data table
 
         ...
     
@@ -273,6 +334,7 @@ class Window(tk.Frame):
             ind = self.listbox.curselection()[0]
             
             self.previewTableLabel.configure(text='\n详细数据：id ' + str(ind+1) + '\n')
+            self.id = ind
         except IndexError:
             return
         # self.previewPane.configure(state=tk.NORMAL)
@@ -333,6 +395,34 @@ class Window(tk.Frame):
                 cell.configure(state='disabled')
         
     def saveData(self, event=1):
+        entries = [[e.get() for e in row] for row in self.entries]
+        x, ypred, y, err = {},{},{},{}
+        
+        for row in entries:
+            feature = row[0]
+            x[feature] = row[1]
+            if row[2]:
+                ypred[feature] = row[2]
+            y[feature] = row[3]
+            if row[4]:
+                err[feature] = row[4]
+            
+        print('X',x)
+        print('Y',y)
+        print('ypred',ypred) 
+        print('err',err)
+        #print(self.data)
+        
+        self.data['X'][self.id] = x
+        self.data['Ypred'][self.id] = ypred
+        self.data['Y'][self.id] = y
+        self.data['err'][self.id] = err
+        
+        dataFile = self.modelName + '.data.json'
+        with open(path / 'models' / self.modelName / dataFile, 'w') as f:
+            f.write(json.dumps(self.data))
+        
+        self.status.configure(text='保存成功！')
         ...
     
     def exportData(self, event=1):
@@ -340,14 +430,19 @@ class Window(tk.Frame):
         
         X = self.data['X']
         Y = self.data['Y']
-        
+        Ypred = self.data['Ypred']
+        err = self.data['err']
         rows = []
-        rows.append(['id','输入输出类'] + list(X[0].keys()))
+        rows.append(['id','数据类'] + list(X[0].keys()))
         for i, x in enumerate(X):
             row1 = [i+1, '进水'] + list(x.values())
-            row2 = [i+1, '出水'] + list(Y[i].values())
+            row2 = [i+1, '机器预测出水'] + list(Ypred[i].values())
+            row3 = [i+1, '专家反馈出水'] + list(Y[i].values())
+            row4 = [i+1, '误差%'] + list(err[i].values())
             rows.append(row1)
             rows.append(row2)
+            rows.append(row3)
+            rows.append(row4)
             
         #print(rows)
          
@@ -367,6 +462,7 @@ class Window(tk.Frame):
             csvreader = csv.reader(open(filename, 'r', encoding='utf-8', newline=newline).readlines(), dialect='excel')
         
         #check data validity
+        acceptedTypes = ['进水', '专家反馈出水']
         rawdata = []
         for row in csvreader:
             rawdata.append(row)
@@ -377,14 +473,17 @@ class Window(tk.Frame):
                 if not row[-1]:
                     row.remove(row[-1])
                 l = len(row)
-                ls.append(l)
+                if row[1] in acceptedTypes:
+                    ls.append(l)
         for l in ls:
             if l != ls[0]:
                 #some row contains extra columns!
                 self.status.configure(text='错误：某行的列数不同与其它的！数据格式必须满足每行列数相同。')
                 return
-            
-        correct = '进水'
+         
+        typeOrder = ['进水','机器预测出水', '专家反馈出水','误差%']
+        acceptedTypes = ['进水', '专家反馈出水']
+        correct = typeOrder[0]
         for i, row in enumerate(rawdata):
             if row:
                 if i > 0: #i=0 is header
@@ -394,13 +493,15 @@ class Window(tk.Frame):
                             float(v)
                         except ValueError:
                             coord = str((i+1,j+1))
-                            
-                            
+             
                             if j != 1:
-                                self.status.configure(text='错误：在' + coord + '格是空格或存在非数字')
-                                return
+                                if v in acceptedTypes:
+                                    self.status.configure(text='错误：在' + coord + '格是空格或存在非数字')
+                                    return
+                                else:
+                                    pass
                             else:
-                                if v not in ['进水','出水']:
+                                if v not in typeOrder:
                                     self.status.configure(text='错误：在' + coord + '格类型标注不对。应该为”出水“或”进水“。')
                                     return
                                 else:
@@ -408,10 +509,11 @@ class Window(tk.Frame):
                                         self.status.configure(text='错误：在' + coord + '格类型标注不对。应该为”' + correct + '“。')
                                         return
                                     else:
-                                        if correct == '进水':
-                                            correct = '出水'
+                                        ind = typeOrder.index(v)
+                                        if ind == len(typeOrder) - 1:
+                                            correct = typeOrder[0]
                                         else:
-                                            correct = '进水'
+                                            correct = typeOrder[ind + 1]
             else:
                 #empty row
                 ...
@@ -426,7 +528,7 @@ class Window(tk.Frame):
         print(data)
         features = data[0][2:]
         #print(features)
-        X,Y,e = [],[],[]
+        X,Y, Ypred, err, e = [],[],[], [], []
         
         data = data[1:]
 
@@ -439,11 +541,24 @@ class Window(tk.Frame):
                 x = dict(zip(features, [float(v) for v in row[2:]]))
                 #print(j, '进水', x)
                 X.append(x)
-            elif row[1] == '出水':
+            elif row[1] == '专家反馈出水':
                 j = row[0]
                 y = dict(zip(features, [float(v) for v in row[2:]]))
                 #print(j,'出水',y)
                 Y.append(y)
+            # elif row[1] == '机器预测出水':
+            #     j = row[0]
+            #     ypred = dict(zip(features, [float(v) for v in row[2:]]))
+            #     #print(j,'出水',y)
+            #     Ypred.append(y)
+            # elif row[1] == '误差%':
+            #     j = row[0]
+            #     e = dict(zip(features, [float(v) for v in row[2:]]))
+            #     #print(j,'出水',y)
+            #     err.append(e)
+            else:
+                #other row types such as 误差 and 机器预测出水 not required for modeling.
+                ...
         # print('X',X)
         # print('Y',Y)
         # print(len(X),len(Y))
