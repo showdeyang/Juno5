@@ -439,6 +439,7 @@ class Window(tk.Frame):
         self.exportData(file= 'output.csv')
         self.importData(file= 'output.csv')
         os.remove(path / 'output' / 'output.csv')
+        self.update_idletasks()
         self.status.configure(text='保存成功，已重新建模！')
         
     def exportData(self, file=None, event=1):
@@ -592,6 +593,7 @@ class Window(tk.Frame):
         #iterative training to simulate error progression.
         for i, x in enumerate(X):
             self.status.configure(text='正在建模...(' + str(i+1) + '/' + str(len(X)) + ')')
+            self.update_idletasks()
             fsl.training(X[:i+1], Y[:i+1], self.modelName)
             try:
                 Ypred, errorByRows, errorByCols = fsl.testing([X[i+1]],[Y[i+1]], self.modelName)
