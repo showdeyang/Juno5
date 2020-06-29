@@ -6,6 +6,7 @@ from tkinter import filedialog
 from pathlib import Path
 #from PIL import ImageTk, Image
 #import win32api
+import datetime
 import glob
 import platform
 import os
@@ -15,7 +16,7 @@ from functools import partial
 #import treatmentEffect as te
 import fewShotsLearning as fsl
 #import wastewater as ww
-#import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import time
@@ -247,6 +248,9 @@ class Window(tk.Frame):
         #check if self.entries are different from saved values;
         #print(self.data)
         self.status.configure(text='正常')
+        dataFile = self.modelName + '.data.json'
+        data = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
+        self.data = data
         print(self.id)
         x,ypred,y,err = self.data['X'][self.id], self.data['Ypred'][self.id], self.data['Y'][self.id], self.data['err'][self.id]
         # print('X',x)
@@ -312,6 +316,7 @@ class Window(tk.Frame):
             
             self.body.pack(side='top',fill='x')
             self.status.configure(text='正常')
+
             
             data = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
             self.data = data
@@ -326,7 +331,9 @@ class Window(tk.Frame):
             # self.previewPane.delete(1.0, tk.END)
             # self.previewPane.insert(tk.END, str(data)[:2000] + '...')
             # self.previewPane.configure(state=tk.DISABLED)
-
+            
+            self.listbox.selection_set(0)
+            self.listbox.event_generate("<<ListboxSelect>>")
         ...
     
     def selectData(self, event):
@@ -425,11 +432,18 @@ class Window(tk.Frame):
             f.write(json.dumps(self.data))
         
         self.status.configure(text='保存成功！')
-        ...
-    
-    def exportData(self, event=1):
-        timestamp = ('').join(str(time.time()).split('.'))
         
+        #####
+        #retrain
+        
+        self.exportData(file= 'output.csv')
+        self.importData(file= 'output.csv')
+        os.remove(path / 'output' / 'output.csv')
+        self.status.configure(text='保存成功，已重新建模！')
+        
+    def exportData(self, file=None, event=1):
+        #timestamp = ('').join(str(time.time()).split('.'))
+        timestamp = datetime.datetime.isoformat(datetime.datetime.now()).replace(':','-').replace('.','-')
         X = self.data['X']
         Y = self.data['Y']
         Ypred = self.data['Ypred']
@@ -447,16 +461,26 @@ class Window(tk.Frame):
             rows.append(row4)
             
         #print(rows)
-         
-        file = self.modelName + timestamp + '.csv'
-        csvwriter = csv.writer(open(path / 'output' / file, 'w', encoding=encoding, newline=newline), dialect='excel')
-        csvwriter.writerows(rows)
+        if not file:
+            file = filedialog.asksaveasfilename(initialfile=self.modelName + '-' + timestamp + '.csv', initialdir = path / 'output', title='导出表格文件', filetypes=(("CSV表格","*.csv"),("所有文件","*.*")))
+            print('file',file)
+            csvwriter = csv.writer(open(path / 'output' / file, 'w', encoding=encoding, newline=newline), dialect='excel')
+            csvwriter.writerows(rows)
+            
+        else:
+            file = file
+            csvwriter = csv.writer(open(path / 'output' / file, 'w', encoding=encoding, newline=newline), dialect='excel')
+            csvwriter.writerows(rows)
+        
         self.status.configure(text='成功！已导出数据到 output 文件夹里！')
         ...
         
-    def importData(self, event=1):
+    def importData(self, file=None, event=1):
         #file dialog to accept file.
-        filename =  filedialog.askopenfilename(initialdir = path,title = "选择导入表格文件",filetypes = (("CSV表格","*.csv"),("所有文件","*.*")))
+        if file:
+            filename = path / 'output' / file
+        else:
+            filename =  filedialog.askopenfilename(initialdir = path / 'output' ,title = "选择导入表格文件",filetypes = (("CSV表格","*.csv"),("所有文件","*.*")))
         print(filename) 
         try:
             csvreader = csv.reader(open(filename, 'r', encoding='gbk', newline=newline).readlines(), dialect='excel')
@@ -530,7 +554,7 @@ class Window(tk.Frame):
         print(data)
         features = data[0][2:]
         #print(features)
-        X,Y, Ypred, err, e = [],[],[], [], []
+        X,Y, Ypreds, errors, e = [],[],[], [], []
         
         data = data[1:]
 
@@ -571,13 +595,19 @@ class Window(tk.Frame):
             fsl.training(X[:i+1], Y[:i+1], self.modelName)
             try:
                 Ypred, errorByRows, errorByCols = fsl.testing([X[i+1]],[Y[i+1]], self.modelName)
-                err = errorByRows[0]
-                e.append(err)
             except IndexError:
                 #last row reached
-                ...
+                Ypred, errorByRows, errorByCols = fsl.testing([X[i]],[Y[i]], self.modelName)
+            #print('errByCols', errorByCols)
+            Ypreds.append(Ypred[0])
+            errors.append(dict(zip(self.features, np.round(errorByCols,2))))
+
+            err = errorByRows[0]
+            e.append(err)
+            
+            ...
         #plot error graphs.
-        trainedData = {'X':X, 'Y':Y, "e":e}
+        trainedData = {'X':X, 'Y':Y, "e":e, 'Ypred': Ypreds, 'err': errors}
         
         plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
         plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')

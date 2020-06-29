@@ -111,6 +111,7 @@ def testing(X,Y, modelname):
         Ypreds.append(Ypred)
         i += 1
     Ypred = np.array(Ypreds).T
+    Ypred = np.round(Ypred,2)
     trY[trY<1e-4] = 0
     Ypred[Ypred<1e-4] = 0
     with np.errstate(divide='ignore', invalid='ignore'):
