@@ -65,6 +65,7 @@ class Window(tk.Frame):
             self.combo = modelCombobox
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
+        self.master.bind('<F5>', self.refresh)
         emptyFrame = tk.Frame(self.master, height=15)
         emptyFrame.pack(side='top')
         
@@ -239,6 +240,11 @@ class Window(tk.Frame):
         emptyFrame = tk.Frame(self.LEFT, height=20)
         emptyFrame.pack(side='bottom')
     ####################################################
+    def refresh(self, event=1):
+        self.combo.event_generate('<<ComboboxSelected>>')
+        print('trainingWidget refreshed')
+        ...
+        
     def loadModel(self, event=1):
         self.modelName = self.combo.get()
         if self.modelName == '请选择模型':
@@ -485,16 +491,16 @@ class Window(tk.Frame):
         #sns.lineplot(x=df["iteration"], y=df["prediction error"], palette='muted')
         #plt.show()
         
-        font_path = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
-        prop = mfm.FontProperties(fname=font_path)
-        #plt.rcParams['font.family']=font_name
-        plt.rcParams['axes.unicode_minus']=False # in case minus sign is shown as box
+        #font_path = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
+        #prop = mfm.FontProperties(fname=font_path)
+        #plt.rcParams['font.family']=font
+        #plt.rcParams['axes.unicode_minus']=False # in case minus sign is shown as box
         plt.style.use('seaborn-whitegrid')
         plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
         plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')
         plt.plot(range(1,len(e)+1), e, color='slateblue')
         plt.title('\nPrediction Error Graph\n')
-        plt.xlabel('\n回合\n', fontproperties=prop)
+        plt.xlabel('\nIteration\n') #, fontproperties=prop
         plt.ylabel('\nError %\n')
         plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight", transparent=True)
         plt.clf()

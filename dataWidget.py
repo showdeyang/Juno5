@@ -75,6 +75,7 @@ class Window(tk.Frame):
             self.combo = modelCombobox
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
         
+        self.bind('<F5>', self.refresh)
         emptyFrame = tk.Frame(self.master, height=15)
         emptyFrame.pack(side='top')
         
@@ -213,6 +214,8 @@ class Window(tk.Frame):
         else:
             self.status = statusLabel
         
+        
+        
         ###########################
     def selectCell(self, i, j, event=1):
         print(i,j)
@@ -288,7 +291,9 @@ class Window(tk.Frame):
             self.saveBtn.pack_forget()
         ...
         
-    def refresh(self):
+    def refresh(self, event=1):
+        self.combo.event_generate('<<ComboboxSelected>>')
+        print('dataWidget refreshed')
         ...
         
     def loadModel(self, event=1):

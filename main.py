@@ -117,11 +117,18 @@ class Window(ttk.Frame):
         self.dataWidget.pack(side='top')
         self.notebook.add(self.dataFrame, text='历史数据 / 批量建模')
         
+        self.master.bind('<F5>', self.refreshUI)
 #        for i in range(len(self.notebook.tabs())):
 #            self.notebook.tab(i,state='disabled')
         self.body = tk.Frame(self.configWidget)
         self.body.pack(side='top', fill='both')
     
+    def refreshUI(self, event=1):
+        self.configWidget.combo.event_generate('<<ComboboxSelected>>')
+        self.trainingWidget.combo.event_generate('<<ComboboxSelected>>')
+        self.dataWidget.combo.event_generate('<<ComboboxSelected>>')
+        print('all UIs refreshed')
+        
     def createNewModel(self, event=7):
         win1 = tk.Toplevel()
         win1.wm_title("添加新工艺")
@@ -365,7 +372,7 @@ if __name__ == "__main__":
 
     s =  noteStyler
     s.configure('TNotebook') #, background='mistyrose'
-    s.configure('TNotebook.Tab', width=25, padding=(10, 15), borderwidth=0, font=(font,11)) #, background='mistyrose', foreground='#fff'
+    s.configure('TNotebook.Tab', width=20, padding=(10, 15), borderwidth=0, font=(font,11)) #, background='mistyrose', foreground='#fff'
     s.configure('lefttab.TNotebook', tabmargins = (0, 3, -1, 0), tabposition='wn', borderwidth=0)
     s.map("TNotebook.Tab", background=[("selected", 'slategray')], foreground=[("selected", '#fffffe')]); ##8bc34a
     
@@ -377,7 +384,7 @@ if __name__ == "__main__":
     root.tk_setPalette(background='#F2F1F0', foreground='#32322D') #
     #set window title
     root.wm_title(APP_TITLE)
-    root.geometry('1300x700')
+    root.geometry('1250x650')
     #show window
     root.mainloop()
 
