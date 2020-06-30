@@ -13,6 +13,7 @@ from functools import partial
 #from tksheet import Sheet
 #from tkintertable import TableCanvas, TableModel
 from MyWidgets import ScrolledWindow
+import dataWidget
 
 path = Path('./')
 APP_TITLE = '最优运行条件配置'
@@ -255,7 +256,18 @@ class Window(tk.Frame):
         #show status
         self.status.configure(text='模型保存成功！')
         #very useful to have a status icon indicating whether there are any unsaved changes, if not, prompts for saving before leaving.
+        self.update_idletasks()
         
+        dataFile = self.modelName + '.data.json'
+        if os.path.isfile(path / 'models' / self.modelName / dataFile):
+            data = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
+            self.data = data
+            #retrain model with new depVars definition
+            dataWidget.Window.exportData(self,file= 'output.csv')
+            dataWidget.Window.importData(self,file= 'output.csv')
+            os.remove(path / 'output' / 'output.csv')
+            self.update_idletasks()
+            self.status.configure(text='模型配置变更成功，已重新建模！')
         
         
     def editDepVars(self, fea, event):

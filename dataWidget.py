@@ -97,6 +97,9 @@ class Window(tk.Frame):
         importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
         importBtn.pack(side='left')
         
+        deleteBtn = ttk.Button(buttons,text='删除此条数据', command=self.deleteData)
+        deleteBtn.pack(side='left')
+        
         self.saveBtn = ttk.Button(buttons, text='保存变更', command=self.saveData)
         #self.saveBtn.pack(side='left')
         
@@ -217,6 +220,44 @@ class Window(tk.Frame):
         
         
         ###########################
+    def deleteData(self, event=1):
+        #print(self.id)        
+        self.confirmWindow = tk.Toplevel()
+        self.confirmWindow.wm_title("删除数据记录")
+        self.confirmWindow.geometry('300x100')
+        label = tk.Label(self.confirmWindow, text='数据 id ' + str(self.id+1) + '：确定删除此条数据？\n（删除后不可恢复！）')
+        label.pack(expand=True)
+        btnFrame = tk.Frame(self.confirmWindow)
+        btnFrame.pack(expand=True)
+        
+        btnOK = ttk.Button(btnFrame, text='确定', command=self.deleteDataID)
+        btnOK.pack(side='left')
+        
+        btnCancel = ttk.Button(btnFrame, text='取消', command=self.confirmWindow.destroy)
+        btnCancel.pack(side='left')
+    
+    def deleteDataID(self, event=1):
+        self.data['X'].pop(self.id)
+        self.data['Ypred'].pop(self.id)
+        self.data['Y'].pop(self.id)
+        self.data['err'].pop(self.id)
+        
+        dataFile = self.modelName + '.data.json'
+        with open(path / 'models' / self.modelName / dataFile, 'w') as f:
+            f.write(json.dumps(self.data))
+        
+        self.status.configure(text='删除成功！')
+        self.update_idletasks()
+        
+        #remodeling
+        self.exportData(file= 'output.csv')
+        self.importData(file= 'output.csv')
+        os.remove(path / 'output' / 'output.csv')
+        self.update_idletasks()
+        self.status.configure(text='删除成功，已重新建模！')
+        self.confirmWindow.destroy()
+        ...
+    
     def selectCell(self, i, j, event=1):
         print(i,j)
         #reset all row highlight border to 0
@@ -340,7 +381,10 @@ class Window(tk.Frame):
             # self.previewPane.insert(tk.END, str(data)[:2000] + '...')
             # self.previewPane.configure(state=tk.DISABLED)
             
-            self.listbox.selection_set(0)
+            try:
+                self.listbox.selection_set(self.id)
+            except AttributeError:
+                self.listbox.selection_set(0)
             self.listbox.event_generate("<<ListboxSelect>>")
         ...
     
@@ -630,11 +674,11 @@ class Window(tk.Frame):
                 
             errorByCols = fsl.computeError(list(Ypred[0].values()), list(Y[i].values()))
             
-            if i == 0:
-                print('Ypred',Ypred)
-                print('Yact',Y[i])
-                print('errByCols', errorByCols)
-                #return
+            print('X',X[i])
+            print('Ypred',Ypred)
+            print('Yact',Y[i])
+            print('errByCols', errorByCols)
+                
             Ypreds.append(Ypred[0])
             errors.append(dict(zip(self.features, np.round(errorByCols,2))))
 
@@ -664,7 +708,8 @@ class Window(tk.Frame):
         
         #refresh the dataTable by simply emulating a ComboboxSelected event.
         self.combo.event_generate('<<ComboboxSelected>>')
-        
+        self.listbox.selection_set(self.id)
+        self.listbox.event_generate("<<ListboxSelect>>")
         
 if __name__ == "__main__":
     root = tk.Tk()
