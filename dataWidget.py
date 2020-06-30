@@ -287,7 +287,10 @@ class Window(tk.Frame):
             self.status.configure(text='正常')
             self.saveBtn.pack_forget()
         ...
-    
+        
+    def refresh(self):
+        ...
+        
     def loadModel(self, event=1):
         
         self.modelName = self.combo.get()
@@ -404,6 +407,7 @@ class Window(tk.Frame):
                 cell.configure(state='disabled')
         
     def saveData(self, event=1):
+        self.saveBtn.pack_forget()
         entries = [[e.get() for e in row] for row in self.entries]
         x, ypred, y, err = {},{},{},{}
         
@@ -441,6 +445,7 @@ class Window(tk.Frame):
         os.remove(path / 'output' / 'output.csv')
         self.update_idletasks()
         self.status.configure(text='保存成功，已重新建模！')
+        
         
     def exportData(self, file=None, event=1):
         #timestamp = ('').join(str(time.time()).split('.'))
@@ -508,8 +513,25 @@ class Window(tk.Frame):
                 self.status.configure(text='错误：某行的列数不同与其它的！数据格式必须满足每行列数相同。')
                 return
          
-        typeOrder = ['进水','机器预测出水', '专家反馈出水','误差%']
-        acceptedTypes = ['进水', '专家反馈出水']
+        #typeOrder = ['进水','机器预测出水', '专家反馈出水','误差%']
+        typeOrder = [] 
+        #programmatically read-off the typeOrder from csv directly
+        for i, row in enumerate(rawdata):
+            if row:
+                if i > 0:
+                    ind = 1
+                    if int(row[0]) == ind:
+                        typeOrder.append(row[1])
+                    else:
+                        break
+                            
+                            
+            else:
+                #empty row
+                pass
+        
+        
+        acceptedTypes = ['进水', '专家反馈出水', '出水']
         correct = typeOrder[0]
         for i, row in enumerate(rawdata):
             if row:
@@ -568,7 +590,7 @@ class Window(tk.Frame):
                 x = dict(zip(features, [float(v) for v in row[2:]]))
                 #print(j, '进水', x)
                 X.append(x)
-            elif row[1] == '专家反馈出水':
+            elif row[1] == '专家反馈出水' or row[1] == '出水':
                 j = row[0]
                 y = dict(zip(features, [float(v) for v in row[2:]]))
                 #print(j,'出水',y)
@@ -600,7 +622,14 @@ class Window(tk.Frame):
             except IndexError:
                 #last row reached
                 Ypred, errorByRows, errorByCols = fsl.testing([X[i]],[Y[i]], self.modelName)
-            #print('errByCols', errorByCols)
+                
+            errorByCols = fsl.computeError(list(Ypred[0].values()), list(Y[i].values()))
+            
+            if i == 0:
+                print('Ypred',Ypred)
+                print('Yact',Y[i])
+                print('errByCols', errorByCols)
+                #return
             Ypreds.append(Ypred[0])
             errors.append(dict(zip(self.features, np.round(errorByCols,2))))
 
@@ -610,14 +639,14 @@ class Window(tk.Frame):
             ...
         #plot error graphs.
         trainedData = {'X':X, 'Y':Y, "e":e, 'Ypred': Ypreds, 'err': errors}
-        
+        plt.style.use('seaborn-whitegrid')
         plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
         plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')
         plt.plot(range(1,len(e)+1), e, color='slateblue')
         plt.title('\nPrediction Error Graph\n')
         plt.xlabel('\nIterations\n')
         plt.ylabel('\nError %\n')
-        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight")
+        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight", transparent=True)
         plt.clf()
         
         #save data
@@ -625,7 +654,12 @@ class Window(tk.Frame):
         with open(path / 'models'/ self.modelName / dataFile, 'w') as f:
             f.write(json.dumps(trainedData))
         self.status.configure(text='导入成功！建模完成！')
+        #self.calcError()
         ...
+        
+        #refresh the dataTable by simply emulating a ComboboxSelected event.
+        self.combo.event_generate('<<ComboboxSelected>>')
+        
         
 if __name__ == "__main__":
     root = tk.Tk()

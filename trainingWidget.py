@@ -15,6 +15,10 @@ import fewShotsLearning as fsl
 import wastewater as ww
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.font_manager as mfm
+#import seaborn as sns
+#import pandas as pd
 
 path = Path('./')
 APP_TITLE = '专家数据建模'
@@ -224,7 +228,7 @@ class Window(tk.Frame):
         self.maxwidth = 400
         self.maxheight = 400
         
-        self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth, bg='white') 
+        self.canvas = tk.Canvas(self.RIGHT, height=self.maxheight, width=self.maxwidth)  #, bg='white'
         #self.img = ImageTk.PhotoImage(img)  
         #self.canvas.create_image(int((self.maxwidth-imgWidth)/2),int((self.maxheight-imgHeight)/2),anchor='nw',image=self.img)  
         self.canvas.pack(expand=True) 
@@ -472,14 +476,27 @@ class Window(tk.Frame):
         fsl.training(X,Y, self.modelName)
         
         #plot error graph
+        # dfx = []
+        # for i, v in enumerate(e,1):
+        #     dfx.append([i,v])
         
+        # df = pd.DataFrame(dfx, columns=["iteration", "prediction error"])
+        #sns.set() 
+        #sns.lineplot(x=df["iteration"], y=df["prediction error"], palette='muted')
+        #plt.show()
+        
+        font_path = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
+        prop = mfm.FontProperties(fname=font_path)
+        #plt.rcParams['font.family']=font_name
+        plt.rcParams['axes.unicode_minus']=False # in case minus sign is shown as box
+        plt.style.use('seaborn-whitegrid')
         plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
         plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')
         plt.plot(range(1,len(e)+1), e, color='slateblue')
         plt.title('\nPrediction Error Graph\n')
-        plt.xlabel('\nIterations\n')
+        plt.xlabel('\n回合\n', fontproperties=prop)
         plt.ylabel('\nError %\n')
-        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight")
+        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight", transparent=True)
         plt.clf()
         
         imgpath = str((path / 'models' / self.modelName  / 'training.png').absolute())
@@ -497,7 +514,13 @@ class Window(tk.Frame):
         self.roundLabel.configure(text='训练回合：' + str(len(e)))
         ...
         self.status.configure(text='提交成功！')
-            
+        
+        ################
+        #seaborn beautiful plot
+        
+        
+        
+        
 if __name__ == "__main__":
     root = tk.Tk()
     
