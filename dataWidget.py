@@ -225,6 +225,7 @@ class Window(tk.Frame):
         self.confirmWindow = tk.Toplevel()
         self.confirmWindow.wm_title("删除数据记录")
         self.confirmWindow.geometry('300x100')
+        self.confirmWindow.wm_attributes("-topmost", 1)
         label = tk.Label(self.confirmWindow, text='数据 id ' + str(self.id+1) + '：确定删除此条数据？\n（删除后不可恢复！）')
         label.pack(expand=True)
         btnFrame = tk.Frame(self.confirmWindow)
@@ -665,14 +666,16 @@ class Window(tk.Frame):
         for i, x in enumerate(X):
             self.status.configure(text='正在建模...(' + str(i+1) + '/' + str(len(X)) + ')')
             self.update_idletasks()
-            fsl.training(X[:i+1], Y[:i+1], self.modelName)
-            try:
-                Ypred, errorByRows, errorByCols = fsl.testing([X[i+1]],[Y[i+1]], self.modelName)
-            except IndexError:
-                #last row reached
+            
+            if i == 0:
+                Ypred = [{feature: np.round(np.abs(np.random.normal(x[feature], np.abs(x[feature]/2))),1) for feature in x}]
+                errorByCols = fsl.computeError(list(Ypred[0].values()), list(Y[i].values()))
+                errorByRows = [np.mean(errorByCols)]
+            else:
+                fsl.training(X[:i], Y[:i], self.modelName)
                 Ypred, errorByRows, errorByCols = fsl.testing([X[i]],[Y[i]], self.modelName)
-                
-            errorByCols = fsl.computeError(list(Ypred[0].values()), list(Y[i].values()))
+            fsl.training(X, Y, self.modelName)
+            #errorByCols = fsl.computeError(list(Ypred[0].values()), list(Y[i].values()))
             
             print('X',X[i])
             print('Ypred',Ypred)
