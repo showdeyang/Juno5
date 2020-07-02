@@ -128,6 +128,7 @@ class Window(ttk.Frame):
         self.trainingWidget.combo.event_generate('<<ComboboxSelected>>')
         self.dataWidget.combo.event_generate('<<ComboboxSelected>>')
         print('all UIs refreshed')
+        self.status.configure(text='正常')
         
     def createNewModel(self, event=7):
         win1 = tk.Toplevel()
