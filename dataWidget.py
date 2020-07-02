@@ -94,11 +94,14 @@ class Window(tk.Frame):
         exportBtn = ttk.Button(buttons, text='导出CSV', command=self.exportData)
         exportBtn.pack(side='left')
         
-        importBtn = ttk.Button(buttons, text='导入CSV + 建模', command=self.importData)
+        importBtn = ttk.Button(buttons, text='导入CSV建模', command=self.importData)
         importBtn.pack(side='left')
         
         deleteBtn = ttk.Button(buttons,text='删除此条数据', command=self.deleteData)
         deleteBtn.pack(side='left')
+        
+        deleteAllBtn = ttk.Button(buttons, text='删除所有数据', command=self.deleteAllData)
+        deleteAllBtn.pack(side='left')
         
         self.saveBtn = ttk.Button(buttons, text='保存变更', command=self.saveData)
         #self.saveBtn.pack(side='left')
@@ -220,6 +223,65 @@ class Window(tk.Frame):
         
         
         ###########################
+    def deleteAllData(self, event=1):
+        self.confirmDeleteAllWindow = tk.Toplevel()
+        self.confirmDeleteAllWindow.wm_title("删除所有数据")
+        self.confirmDeleteAllWindow.geometry('300x100')
+        self.confirmDeleteAllWindow.wm_attributes("-topmost", 1)
+        label = tk.Label(self.confirmDeleteAllWindow, text='确定删除所有数据？\n（所有数据删除后不可恢复！模型将会重置成初始未训练状态！）', wraplength=250)
+        label.pack(expand=True)
+        btnFrame = tk.Frame(self.confirmDeleteAllWindow)
+        btnFrame.pack(expand=True)
+        
+        btnOK = ttk.Button(btnFrame, text='确定', command=self.clearAllData)
+        btnOK.pack(side='left')
+        
+        btnCancel = ttk.Button(btnFrame, text='取消', command=self.confirmDeleteAllWindow.destroy)
+        btnCancel.pack(side='left')
+        ...
+        
+    def clearAllData(self, event=1):
+        self.data['X'] = []
+        self.data['Ypred'] = []
+        self.data['Y'] = []
+        self.data['err'] = []
+        self.data['e'] = []
+        dataFile = self.modelName + '.data.json'
+        with open(path / 'models' / self.modelName / dataFile, 'w') as f:
+            f.write(json.dumps(self.data))
+        
+        #clear all .model
+        models = glob.glob(str((path / 'models' / self.modelName / '*.model').absolute()))
+        [os.remove(model) for model in models]
+        self.status.configure(text='删除数据成功！')
+        self.update_idletasks()
+        
+        plt.style.use('seaborn-whitegrid')
+        #plt.scatter(range(1,len(e)+1), e, s=40, marker='o', color='slategray')
+        plt.scatter([0,10],[0,30], s=0, marker='o', color='slategray')
+        #plt.plot(range(1,len(e)+1), e, color='slateblue')
+        plt.title('\nPrediction Error Graph\n')
+        plt.xlabel('\nIterations\n')
+        plt.ylabel('\nError %\n')
+        plt.savefig(path / 'models' / self.modelName / 'training.png' , dpi=300, bbox_inches = "tight", transparent=True)
+        plt.clf()
+        #self.body.pack_forget()
+        #clear all entries in the dataTable
+        for row in self.entries:
+            for j, cell in enumerate(row):
+                if j > 0:
+                    if j % 2 == 0:
+                        cell.configure(state='normal')
+                        cell.delete(0, tk.END)
+                        cell.configure(state='disabled')
+                    else:
+                        cell.delete(0,tk.END)
+                
+        self.refresh()         
+                
+        self.confirmDeleteAllWindow.destroy()
+        ...
+    
     def deleteData(self, event=1):
         #print(self.id)        
         self.confirmWindow = tk.Toplevel()
@@ -242,7 +304,7 @@ class Window(tk.Frame):
         self.data['Ypred'].pop(self.id)
         self.data['Y'].pop(self.id)
         self.data['err'].pop(self.id)
-        
+        self.data['e'].pop(self.id)
         dataFile = self.modelName + '.data.json'
         with open(path / 'models' / self.modelName / dataFile, 'w') as f:
             f.write(json.dumps(self.data))
@@ -330,7 +392,7 @@ class Window(tk.Frame):
             self.saveBtn.pack(side='left')
         else:
             self.status.configure(text='正常')
-            self.saveBtn.pack_forget()
+            
         ...
         
     def refresh(self, event=1):
@@ -504,6 +566,11 @@ class Window(tk.Frame):
         Y = self.data['Y']
         Ypred = self.data['Ypred']
         err = self.data['err']
+        
+        if not X:
+            self.status.configure(text='没有数据，无法导出')
+            return
+        
         rows = []
         rows.append(['id','数据类'] + list(X[0].keys()))
         for i, x in enumerate(X):
@@ -542,6 +609,9 @@ class Window(tk.Frame):
             csvreader = csv.reader(open(filename, 'r', encoding='gbk', newline=newline).readlines(), dialect='excel')
         except UnicodeDecodeError:
             csvreader = csv.reader(open(filename, 'r', encoding='utf-8', newline=newline).readlines(), dialect='excel')
+        
+        except FileNotFoundError:
+            return
         
         #check data validity
         acceptedTypes = ['进水', '专家反馈出水']
@@ -711,8 +781,11 @@ class Window(tk.Frame):
         
         #refresh the dataTable by simply emulating a ComboboxSelected event.
         self.combo.event_generate('<<ComboboxSelected>>')
-        self.listbox.selection_set(self.id)
-        self.listbox.event_generate("<<ListboxSelect>>")
+        try:
+            self.listbox.selection_set(self.id)
+            self.listbox.event_generate("<<ListboxSelect>>")
+        except AttributeError:
+            pass
         
 if __name__ == "__main__":
     root = tk.Tk()

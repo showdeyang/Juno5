@@ -85,11 +85,17 @@ class wastewater:
         if test:
             return normalState, msg
     
+    def signif(self, x, p):
+        x = np.asarray(x)
+        x_positive = np.where(np.isfinite(x) & (x != 0), np.abs(x), 10**(p-1))
+        mags = 10 ** (p - 1 - np.floor(np.log10(x_positive)))
+        return np.round(x * mags) / mags
+    
     def generateFromOpt(self, optDict):
         optState = False
         while not optState:
             self.simulate(random=True)
-            water = {feature: np.random.uniform(optDict[feature]['min'], optDict[feature]['max']) for feature in optDict}
+            water = {feature: self.signif(np.random.uniform(optDict[feature]['min'], optDict[feature]['max']), 2) for feature in optDict}
             self.water.update(water)
             #self.simulate(water)
             optState, msg = self.conform(test=True)

@@ -392,7 +392,15 @@ class Window(tk.Frame):
             #feedback column
             cell = self.entries[i][3]
             cell.delete(0,tk.END)
-            if trained:
+            try:
+                dataFile = self.modelName + '.data.json'
+                data = json.loads(open(path / 'models' / self.modelName / dataFile, 'r').read())
+                
+                count = len(data['X'])
+            except:
+                count = 0
+            print('data count',count)
+            if count > 3:
                 cell.insert(tk.END, round(Ypred[feature],1))
             else:
                 cell.insert(tk.END, round(x[feature],1))
