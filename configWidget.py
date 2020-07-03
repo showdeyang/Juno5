@@ -43,10 +43,10 @@ class Window(tk.Frame):
             self.cb = tk.Frame(self.row)
             self.cb.pack(side='top')
             
-            self.combokey = tk.Label(self.cb, text='当前污水处理工艺：')
+            self.combokey = tk.Label(self.cb, text='污水处理工艺：')
             self.combokey.pack(side='left')
             
-            self.combo = ttk.Combobox(self.cb, values=['请选择模型'] + self.treatments)
+            self.combo = ttk.Combobox(self.cb, values=['请选择工艺'] + self.treatments)
             self.combo.pack(side='left')
             self.combo.current(0)
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
@@ -88,7 +88,7 @@ class Window(tk.Frame):
             self.statusBar = tk.Frame(master=self.master, relief='sunken', bd=1)
             self.statusBar.pack(side='bottom', fill='x')
     
-            self.status = tk.Label(master=self.statusBar, text='请选择模型')
+            self.status = tk.Label(master=self.statusBar, text='请选择工艺')
             self.status.pack(side='left')
         else:
             self.status = statusLabel
@@ -265,7 +265,10 @@ class Window(tk.Frame):
             #retrain model with new depVars definition
             dataWidget.Window.exportData(self,file= 'output.csv')
             dataWidget.Window.importData(self,file= 'output.csv')
-            os.remove(path / 'output' / 'output.csv')
+            try:
+                os.remove(path / 'output' / 'output.csv')
+            except FileNotFoundError:
+                pass
             self.update_idletasks()
             self.status.configure(text='模型配置变更成功，已重新建模！')
         
@@ -324,7 +327,7 @@ class Window(tk.Frame):
     def loadModel(self,event=1):
         #print(self.modelName.get())
         self.features = json.loads(open(path / 'config'/'features.json','r').read())
-        if self.combo.get() != '请选择模型':
+        if self.combo.get() != '请选择工艺':
             self.optFrame.pack(side='top')
             #self.optTable.focus_set()
             self.modelName = self.combo.get()

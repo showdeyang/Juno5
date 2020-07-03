@@ -63,11 +63,11 @@ class Window(tk.Frame):
             self.cb = tk.Frame(self.row)
             self.cb.pack(side='top')
             
-            self.combokey = tk.Label(self.cb, text='当前污水处理工艺：')
+            self.combokey = tk.Label(self.cb, text='污水处理工艺：')
             self.combokey.pack(side='left')
             
             self.combo = ttk.Combobox(self.cb, 
-                                      values = ['请选择模型'] + self.treatments)
+                                      values = ['请选择工艺'] + self.treatments)
             self.combo.pack(side='left')
             self.combo.current(0)
             self.combo.bind("<<ComboboxSelected>>", self.loadModel)
@@ -214,7 +214,7 @@ class Window(tk.Frame):
             self.statusBar.pack(side='bottom', fill='x')
     
             self.status = tk.Label(master=self.statusBar, 
-                                   text='请选择模型')
+                                   text='请选择工艺')
             self.status.pack(side='left')
             
         else:
@@ -403,9 +403,9 @@ class Window(tk.Frame):
     def loadModel(self, event=1):
         
         self.modelName = self.combo.get()
-        if self.modelName == '请选择模型':
+        if self.modelName == '请选择工艺':
             self.modelName = None
-            self.status.configure(text='请选择模型！')
+            self.status.configure(text='请选择工艺！')
             self.body.pack_forget()
             return
         else:
