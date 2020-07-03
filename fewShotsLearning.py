@@ -98,10 +98,10 @@ def testing(X,Y, modelname):
     trX,trY = np.array(trX),np.array(trY)
     #Ypred = np.clip(regr.predict(trX),0,1e10) 
     Ypreds = []
-    i = 0
-    for outputVar in features:
+    
+    for i, outputVar in enumerate(features):
         regr = regrs[i]
-        print(i,regr.coef_)
+        print(i,outputVar, regr.coef_, regr.intercept_)
         dependentVars = depVars[outputVar]
         #outInd = features.index(outputVar)
         inInds = list(map(lambda var: features.index(var), dependentVars))
@@ -109,7 +109,7 @@ def testing(X,Y, modelname):
         #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
         Ypred = np.clip(regr.predict(X1),0,1e10)
         Ypreds.append(Ypred)
-        i += 1
+        
     Ypred = np.array(Ypreds).T
     Ypred = np.round(Ypred,2)
     trY[trY<1e-4] = 0
@@ -144,10 +144,10 @@ def predict(x,modelname):
     trX = [dict2Array(x)]
     trX = np.array(trX)
     Ypreds = []
-    i = 0
-    for outputVar in features:
+    
+    for i, outputVar in enumerate(features):
         regr = regrs[i]
-        print(i,regr.coef_)
+        print(i,outputVar, regr.coef_, regr.intercept_)
         dependentVars = depVars[outputVar]
         #outInd = features.index(outputVar)
         inInds = list(map(lambda var: features.index(var), dependentVars))
@@ -155,7 +155,7 @@ def predict(x,modelname):
         #gp.SymbolicRegressor(init_depth=(1,6),verbose=1,parsimony_coefficient=1, generations=20)
         Ypred = np.clip(regr.predict(X1),0,1e10)
         Ypreds.append(Ypred)
-        i += 1
+        
     Ypred = np.array(Ypreds).T
     Ypred[Ypred<1e-4] = 0
     Ypred = array2Dict(Ypred[0], features)
@@ -182,7 +182,6 @@ if __name__=='__main__':
 
     
     model = te.loadModel(modelname)
-    #opt = te.parseModel(model)[0]
     opt = te.loadOpt(modelname)
     #opt['可生化性']['max'] = 100
     X,Y = [],[]
@@ -194,19 +193,11 @@ if __name__=='__main__':
             x.simulate(random=True)
         X.append(x.water)
         #print('input wastewater',x.water)
-        y = te.treat(x,modelname)['optEff'].water
+        y = te.simulateTreat(x,modelname)['optEff'].water
         #print(y['COD'])
         Y.append(y)
     
-    depVars = {feature: [feature] for feature in x.features}
-    depVars['TN'] += ['COD']
-    depVars['N-NH3'] += ['COD','TN']
-    depVars['N-NO3'] += ['COD','TN']
-    depVars['TP'] += ['COD']
     
-    depVarFile = modelname + '.depVar.json'
-    with open(path / 'models'/ modelname / depVarFile,'w') as f:
-        f.write(json.dumps(depVars))
         
     Ypred, ebr, ebc = training(X,Y, modelname)
     t2 = time.time()
@@ -222,7 +213,7 @@ if __name__=='__main__':
             x.simulate(random=True)
         X.append(x.water)
         #print('input wastewater',x.water)
-        y = te.treat(x,modelname)['optEff'].water
+        y = te.simulateTreat(x,modelname)['optEff'].water
         #print(y['COD'])
         Y.append(y)
     

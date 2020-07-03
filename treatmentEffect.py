@@ -102,13 +102,6 @@ def shiftByFeature(wastewater, wastewater_init, feature, dependentFeature):
     
 #####################################
 # Model processing
-    
-def loadSyntax():
-    funcD = {'同比增减':changeInProportion, '限制':limit, '调节': regulate, '去除': removal, '增减': shift, '同比去除': removalInProportion, '同额增减': shiftByFeature}
-    parameters = [['去除率'],['目标值'],['閥值'],['增量'],['依赖指标','增减比例']]
-    operators = ['≤',' ≥','介于']
-    effects = ['同比增减','限制', '调节','去除','增减']
-    return funcD, parameters, operators, effects
 
 def loadModel(modelName):
     modelFile = modelName + '.data.json'
@@ -121,53 +114,6 @@ def loadOpt(modelName):
     model = json.loads(open(path / 'models'/ modelName/modelFile,'r').read())
 
     return model
-
-def parseModel(model):
-    
-    def isnum(x):
-        try:
-            float(x)
-            return True
-        except ValueError:
-            return False
-    
-    syntax = loadSyntax()
-    funcD = syntax[0]
-    dOpt = model['最优运行条件']
-    dTre = model['最优处理效果']
-    #print('dTre', dTre)
-    opt = {}
-    
-    for condition in dOpt:
-        #print('opt condition',condition)
-        for feature in condition:
-            
-            opt[feature] = {}
-            operator = list(condition[feature].keys())[0]
-            
-            vector = [float(v.strip()) for v in condition[feature][operator]]
-            operator = operator.strip()
-            opt[feature]['min'] = min(vector) * (operator!='≤') + 0 * (operator=='≤')
-            opt[feature]['max'] = 10e10 * (operator=='≥') + max(vector)  * (operator!='≥')
-            #print('parsed opt',opt[feature])
-    fs,vs = [], []
-    for effect in dTre:
-        for feature in effect:
-            
-            #fea.append(feature)
-            funcs = list(effect[feature].keys())
-            fs.append(funcD[funcs[0]])
-            #print(funcD[funcs[0]])
-            for func in funcs:
-                v = list(effect[feature][func].values())
-                
-                    
-                v = list(map(lambda x: float(x) if isnum(x) else x, v))
-                vs.append([feature,*v])
-            
-    treObj = list(zip(fs, vs))
-    #[print('treobject',treobj) for treobj in treObj]
-    return opt, treObj
 
 def optimality(wastewater, opt):
     #determine how optimal is the wastewater to be treated based on opt. Opt is a dictionary.
@@ -183,39 +129,24 @@ def optimality(wastewater, opt):
     
     return efficacy, optDict, optFlag
 
-def optTreat(x, modelname, treObj):
-    assert isinstance(x, ww.wastewater), 'input is not a wastewater object.'
-    
-    y = ww.wastewater(x.water) #create a new wastewater y with the same characteristics of x.
-    #delayF = []
-    for tre in treObj:
-        try:
-            func = tre[0] #<function changeInProportion at 0x7f7b44034c80>
-            args = tre[1] #['TN', 'COD', 250.0]
-            #print('func',func)
-            #print('args',args)
-            y = func(y, *args)
-            #print('x',x.water)
-            #print('y',y.water)
-        except TypeError:
-            #delayF.append(tre)
-            y = func(y,x, *args)
-        #xlist.append(y)
-#    for df in delayF:
-#        y = df(y,x)
-    #print('treated wastewater', y.water)
-    return y
-
-def treat(x, modelname):
+def simulateTreat(x, modelname):
     assert isinstance(x, ww.wastewater), 'input is not a wastewater object.'
     model = loadModel(modelname)
-    #opt, treObj = parseModel(model)
-    y = optTreat(x, modelname, treObj)
+    opt = loadOpt(modelname)
     efficacy, optDict, optFlag = optimality(x, opt)
     #print('opt',opt)
     #print('optimality', optDict)
     #print('suboptimal features', optFlag)
     #print('treatment efficacy',efficacy)
+    
+    y = removal(x, 'COD', 90)
+    y = shift(y, '温度', 1)
+    y = shift(y, 'pH', 0.5)
+    y = changeInProportion(y, x, 'TN', 'COD', 200)
+    y = removalInProportion(y, x, 'N-NO3', 'TN')
+    y = removalInProportion(y, x, 'N-NH3', 'TN')
+    y = removal(y, '可生化性', 30)
+    
     act_y = {feature: x.water[feature] + (y.water[feature] - x.water[feature])*efficacy for feature in y.water}
     z = ww.wastewater(act_y)
     result = {'effluent':z, 'efficacy': efficacy, 'flags': optFlag, 'opt':optDict , 'optEff':y}
@@ -227,7 +158,7 @@ if __name__ == '__main__':
     x = ww.wastewater({'COD': 1000, 'TN': 100, '温度':41})
     x.simulate(random=False)
     #print('input wastewater',x.water)
-    zs = treat(x,'厌氧')
+    zs = simulateTreat(x,'厌氧')
     
     t2 = time.time()
     print('time taken',(t2-t1)*1e3, 'ms')

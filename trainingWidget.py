@@ -489,16 +489,7 @@ class Window(tk.Frame):
         
         fsl.training(X,Y, self.modelName)
         
-        #plot error graph
-        # dfx = []
-        # for i, v in enumerate(e,1):
-        #     dfx.append([i,v])
-        
-        # df = pd.DataFrame(dfx, columns=["iteration", "prediction error"])
-        #sns.set() 
-        #sns.lineplot(x=df["iteration"], y=df["prediction error"], palette='muted')
-        #plt.show()
-        
+
         #font_path = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
         #prop = mfm.FontProperties(fname=font_path)
         #plt.rcParams['font.family']=font
